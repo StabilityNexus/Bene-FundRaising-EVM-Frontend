@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <div className="py-5 bg-slate-950 flex flex-row justify-between align-middle flex-wrap px-4">
       <div className="flex flex-row gap-6">
-        <button className="flex">
+        <Link to={"/Bene-FundRaising-EVM-Frontend/"} className="flex">
           <svg
             fill="#ffffff"
             height="40px"
@@ -57,7 +57,7 @@ const Navbar = () => {
           <span className=" text-2xl px-1  font-bold text-white">
             Bene: Fundraising Platform
           </span>
-        </button>
+        </Link>
         <div className="w-80 hidden md:block">
           <label className="mb-2 text-sm font-medium sr-only bg-slate-950 text-white">
             Search
@@ -112,7 +112,8 @@ const Navbar = () => {
         {Account.address ? (
           <button
             onClick={() => {
-              if (Account.address) navigate("create");
+              if (Account.address)
+                navigate("/Bene-FundRaising-EVM-Frontend/create");
             }}
             className="text-white bg-zinc-800 font-bold text-sm h-10 hover:bg-zinc-900 px-3 rounded-lg shadow-md "
           >
