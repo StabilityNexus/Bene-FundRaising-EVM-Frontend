@@ -2,7 +2,7 @@
   "name": "benefactionevm",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://zain171m.github.io/BenefactionPlatform-EVM-Frontend/",
+  "homepage": "https://stabilitynexus.github.io/Bene-FundRaising-EVM-Frontend/",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
