@@ -57,9 +57,18 @@ export default function App() {
             <Router>
               <Navbar />
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/details/:address" element={<Details />} />
+                <Route
+                  path="/Bene-FundRaising-EVM-Frontend/"
+                  element={<Home />}
+                />
+                <Route
+                  path="/Bene-FundRaising-EVM-Frontend/create"
+                  element={<Create />}
+                />
+                <Route
+                  path="/Bene-FundRaising-EVM-Frontend/details/:address"
+                  element={<Details />}
+                />
               </Routes>
             </Router>
             <footer className="text-white text-center py-4 pt-20 mt-auto">
