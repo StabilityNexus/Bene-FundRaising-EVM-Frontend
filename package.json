@@ -2,7 +2,7 @@
   "name": "benefactionevm",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://stabilitynexus.github.io/Bene-FundRaising-EVM-Frontend/",
+  "homepage": "https://bene-evm.stability.nexus/",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
