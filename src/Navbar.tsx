@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <div className="py-5 bg-slate-950 flex flex-row justify-between align-middle flex-wrap px-4">
       <div className="flex flex-row gap-6">
-        <Link to={"/Bene-FundRaising-EVM-Frontend/"} className="flex">
+        <Link to={"/"} className="flex">
           <svg
             fill="#ffffff"
             height="40px"

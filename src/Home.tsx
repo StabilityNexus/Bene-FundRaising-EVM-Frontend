@@ -45,7 +45,7 @@ const Home = () => {
 
   const handleNavigate = (address: string) => {
     // Navigate to the details page with the vault address as a URL parameter
-    navigate(`/Bene-FundRaising-EVM-Frontend/details/${address}`);
+    navigate(`details/${address}`);
   };
 
   return (
