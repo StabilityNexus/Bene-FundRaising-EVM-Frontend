@@ -33,6 +33,7 @@ export default function App() {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
+          coolMode
           initialChain={chains.arbitrumSepolia}
           theme={darkTheme({
             accentColor: "#7b3fe4",
