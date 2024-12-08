@@ -14,7 +14,6 @@ import Home from "./Home";
 import Create from "./Create";
 import Details from "./Details";
 
-// Take the first 100 chains, and ensure the result is treated as a tuple
 const AllChains: readonly [Chain, ...Chain[]] = Object.values(
   chains,
 ) as unknown as readonly [Chain, ...Chain[]];
