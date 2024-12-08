@@ -3,18 +3,10 @@ import {
   getDefaultConfig,
   RainbowKitProvider,
   darkTheme,
+  Chain,
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  sepolia,
-  polygonAmoy,
-  arbitrumSepolia,
-} from "wagmi/chains";
+import * as chains from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -22,19 +14,14 @@ import Home from "./Home";
 import Create from "./Create";
 import Details from "./Details";
 
+const AllChains: readonly [Chain, ...Chain[]] = Object.values(
+  chains,
+) as unknown as readonly [Chain, ...Chain[]];
+
 export const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "YOUR_PROJECT_ID",
-  chains: [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    sepolia,
-    polygonAmoy,
-    arbitrumSepolia,
-  ],
+  chains: AllChains,
   ssr: true, // If your d/Bene-FundRaising-EVM-Frontend/App uses server side rendering (SSR)
 });
 
@@ -45,6 +32,8 @@ export default function App() {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
+          coolMode
+          initialChain={chains.arbitrumSepolia}
           theme={darkTheme({
             accentColor: "#7b3fe4",
             accentColorForeground: "white",
