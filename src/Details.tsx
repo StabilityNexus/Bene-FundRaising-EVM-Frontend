@@ -1,4 +1,5 @@
 import vaultabi from "./abi/vaultabi.json";
+import abi from "./abi/abi.json";
 import { useReadContract, useWriteContract } from "wagmi";
 import { arbitrumSepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
@@ -7,6 +8,7 @@ import { formatEther, parseEther } from "viem";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useBalance } from "wagmi";
 
 type Inputs = {
   ethAmount: string;
@@ -28,7 +30,27 @@ const Details = () => {
     vaultDetails = response?.data as VaultDetailsType;
   }
 
-  
+  // Second contract call, triggered only when `totalVaults`, `start`, and `end` are defined
+  const result = useReadContract({
+    abi: abi,
+    address: vaultDetails?.participationToken,
+    functionName: "balanceOf",
+    args: [address],
+    chainId: arbitrumSepolia.id,
+    query: {
+      enabled: vaultDetails !== undefined,
+    },
+  });
+
+  const VaultCAT = result?.data as string;
+
+  const balanceOfVault = useBalance({
+    address: address,
+    query: {
+      enabled: VaultCAT !== undefined,
+    },
+  });
+
   //const vaultDetails = response?.data as VaultDetailsType;
   const [activeTab, setActiveTab] = useState("Fund Project");
 
@@ -150,7 +172,7 @@ const Details = () => {
         <h1 className="text-2xl font-bold text-white">Vault Details</h1>
         <div className="space-y-6 ">
           {/* Stat Cards Section */}
-          {!vaultDetails && (
+          {!balanceOfVault.data && (
             <div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 py-5">
                 <div className="rounded-lg p-6 shadow-md border bg-slate-900  border-slate-950 ">
@@ -182,7 +204,7 @@ const Details = () => {
                   <div className="flex items-center space-x-3">
                     <div className="text-purple-500 text-2xl">
                       {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
-                      💰
+                      🥮
                     </div>
                     <div>
                       <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28"></div>
@@ -203,7 +225,44 @@ const Details = () => {
                   </div>
                 </div>
               </div>
-
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 py-5">
+                <div className=" bg-slate-900 rounded-lg p-6 shadow-md border border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-green-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-purple-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className=" rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-red-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               {/* Detailed Cards Section */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className=" rounded-lg shadow-md border p-6 bg-slate-900 border-slate-950">
@@ -233,7 +292,7 @@ const Details = () => {
               </div>
             </div>
           )}
-          {vaultDetails && (
+          {balanceOfVault.data && VaultCAT && vaultDetails && (
             <div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 py-5">
                 <div className="rounded-lg p-6 shadow-md border bg-slate-900  border-slate-950 ">
@@ -258,7 +317,7 @@ const Details = () => {
                       🥮
                     </div>
                     <div>
-                      <h3 className="text-slate-400">Available CATs</h3>
+                      <h3 className="text-slate-400">Total CATs</h3>
                       <p className="text-lg font-semibold">
                         {formatEther(
                           BigInt(vaultDetails.participationTokenAmount),
@@ -268,16 +327,16 @@ const Details = () => {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                <div className=" bg-slate-900 rounded-lg p-6 shadow-md border border-slate-950">
                   <div className="flex items-center space-x-3">
-                    <div className="text-purple-500 text-2xl">
+                    <div className="text-green-500 text-2xl">
                       {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
-                      💰
+                      🥮
                     </div>
                     <div>
-                      <h3 className="text-slate-400">Minimum Funding Goal</h3>
+                      <h3 className="text-slate-400">Available CATs</h3>
                       <p className="text-lg font-semibold">
-                        {formatEther(BigInt(vaultDetails.minFundingAmount))} Eth
+                        {formatEther(BigInt(VaultCAT))} Tokens
                       </p>
                     </div>
                   </div>
@@ -294,6 +353,56 @@ const Details = () => {
                         {new Date(
                           Number(vaultDetails.timeStamp) * 1000,
                         ).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 py-5">
+                <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-purple-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <h3 className="text-slate-400">Minimum Funding Goal</h3>
+                      <p className="text-lg font-semibold">
+                        {formatEther(BigInt(vaultDetails.minFundingAmount))}{" "}
+                        {balanceOfVault?.data?.symbol}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-purple-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <h3 className="text-slate-400">Funds Collected</h3>
+                      <p className="text-lg font-semibold">
+                        {formatEther(balanceOfVault?.data?.value as bigint)}{" "}
+                        {balanceOfVault?.data?.symbol}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-purple-500 text-2xl">
+                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      💰
+                    </div>
+                    <div>
+                      <h3 className="text-slate-400">Funds Remaining</h3>
+                      <p className="text-lg font-semibold">
+                        {formatEther(
+                          BigInt(vaultDetails.minFundingAmount) -
+                            (balanceOfVault?.data?.value as bigint),
+                        )}{" "}
+                        {balanceOfVault?.data?.symbol}
                       </p>
                     </div>
                   </div>
