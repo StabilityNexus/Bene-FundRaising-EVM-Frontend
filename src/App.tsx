@@ -7,6 +7,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import * as chains from "wagmi/chains";
+import { citreaTestnet } from "./CitreaTestnet";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -14,9 +15,10 @@ import Home from "./Home";
 import Create from "./Create";
 import Details from "./Details";
 
-const AllChains: readonly [Chain, ...Chain[]] = Object.values(
-  chains,
-) as unknown as readonly [Chain, ...Chain[]];
+const AllChains: readonly [Chain, ...Chain[]] = [
+  ...(Object.values(chains) as Chain[]),
+  citreaTestnet,
+] as unknown as readonly [Chain, ...Chain[]];
 
 export const config = getDefaultConfig({
   appName: "My RainbowKit App",

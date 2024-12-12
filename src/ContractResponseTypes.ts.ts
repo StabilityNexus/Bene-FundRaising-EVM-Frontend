@@ -9,7 +9,7 @@ export type VaultArrayType = Vault[];
 
 export interface VaultDetailsType {
   withdrawlAddress: string;
-  participationToken: string;
+  participationToken: `0x${string}`;
   participationTokenAmount: string;
   minFundingAmount: string;
   timeStamp: string;

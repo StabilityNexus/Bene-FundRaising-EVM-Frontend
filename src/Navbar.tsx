@@ -112,8 +112,7 @@ const Navbar = () => {
         {Account.address ? (
           <button
             onClick={() => {
-              if (Account.address)
-                navigate("/Bene-FundRaising-EVM-Frontend/create");
+              if (Account.address) navigate("/create");
             }}
             className="text-white bg-zinc-800 font-bold text-sm h-10 hover:bg-zinc-900 px-3 rounded-lg shadow-md "
           >
