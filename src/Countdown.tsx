@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 
-const Countdown = ({ targetTimestamp }: { targetTimestamp: number }) => {
+interface CountdownProps {
+  targetTimestamp: number;
+  variant?: "default" | "compact"; // Add different styles as variants
+}
+
+const Countdown: React.FC<CountdownProps> = ({
+  targetTimestamp,
+  variant = "default",
+}) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -34,6 +42,15 @@ const Countdown = ({ targetTimestamp }: { targetTimestamp: number }) => {
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, [targetTimestamp]);
+
+  if (variant === "compact") {
+    return (
+      <span>
+        {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
+        {timeLeft.seconds}s
+      </span>
+    );
+  }
 
   return (
     <div className="flex items-center space-x-4 flex-wrap">

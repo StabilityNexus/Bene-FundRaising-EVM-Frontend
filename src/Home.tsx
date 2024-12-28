@@ -4,6 +4,7 @@ import factoryabi from "./abi/factoryabi.json";
 import { useReadContract } from "wagmi";
 import { arbitrumSepolia } from "viem/chains";
 import { useNavigate } from "react-router-dom";
+import Countdown from "./Countdown.tsx";
 const Home = () => {
   const [totalVaults, setTotalVaults] = useState<number>();
   const [start, setStart] = useState<number>();
@@ -85,10 +86,12 @@ const Home = () => {
                 {vault.description}
               </p>
               <div className="flex flex-row justify-between py-4">
-                {/* <h1 className="text-base  text-white">Minimum limit: 56 ETH</h1> */}
                 <h1 className="text-base  ">
-                  Created:{" "}
-                  {new Date(Number(vault.deadline) * 1000).toLocaleString()}
+                  Time Left:{" "}
+                  <Countdown
+                    targetTimestamp={Number(vault.deadline) * 1000}
+                    variant="compact"
+                  />
                 </h1>
               </div>
               <div className="">
