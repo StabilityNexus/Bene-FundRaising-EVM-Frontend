@@ -13,7 +13,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microlink/react": "^5.5.22",
     "@rainbow-me/rainbowkit": "^2.2.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@tanstack/react-query": "5.45.1",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",

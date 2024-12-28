@@ -54,9 +54,7 @@ const Navbar = () => {
               ></path>
             </g>
           </svg>
-          <span className=" text-2xl px-1  font-bold text-white">
-            Bene: Fundraising Platform
-          </span>
+          <span className=" text-2xl px-1  font-bold text-white">Bene</span>
         </Link>
         <div className="w-80 hidden md:block">
           <label className="mb-2 text-sm font-medium sr-only bg-slate-950 text-white">
@@ -116,7 +114,7 @@ const Navbar = () => {
             }}
             className="text-white bg-zinc-800 font-bold text-sm h-10 hover:bg-zinc-900 px-3 rounded-lg shadow-md "
           >
-            Create New Funding Vault
+            Raise Funds for a New Project
           </button>
         ) : (
           <div></div>

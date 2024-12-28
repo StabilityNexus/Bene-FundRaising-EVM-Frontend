@@ -82,9 +82,10 @@ const Create = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-5">
           <div>
-            <label className={`text-sm text-slate-400`}>Project Name</label>
+            <label className={`text-sm text-white`}>Project Name</label>
             <input
               id="title"
+              placeholder="Enter the name of your project (e.g., Green Energy Initiative)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               required
               {...register("title", { required: true })}
@@ -103,9 +104,10 @@ const Create = () => {
             }}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>Project URL</label>
+            <label className={`text-sm text-white`}>Project URL</label>
             <input
               id="url"
+              placeholder="Provide a link to your project website (e.g., https://myproject.com)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               required
               {...register("url", { required: true })}
@@ -125,9 +127,10 @@ const Create = () => {
             },
           }}
         /> */}
-        <label className={`text-sm text-slate-400`}>Description</label>
+        <label className={`text-sm text-white`}>Description</label>
         <textarea
           id="description"
+          placeholder="Briefly describe your project and its goals (e.g., A platform for crowdfunding green energy projects)"
           className="bg-transparent p-5 text-sm w-full outline-none border border-slate-600 h-40 rounded-md"
           {...register("description", { required: true })}
         />
@@ -144,11 +147,12 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
-              Partcipation Token Address
+            <label className={`text-sm text-white`}>
+              Proof-of-Funding Token Address
             </label>
             <input
               id="pta"
+              placeholder="Enter the smart contract address for the Proof-of-Funding token (e.g., 0x123...abc)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("pta", { required: true })}
             />
@@ -162,11 +166,10 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
-              Withdrawl Address
-            </label>
+            <label className={`text-sm text-white`}>Withdrawal Address</label>
             <input
               id="withdrawAddress"
+              placeholder="Enter the Ethereum address to receive funds (e.g., 0x456...def)"
               className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("withdrawAddress", { required: true })}
             />
@@ -180,11 +183,12 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
+            <label className={`text-sm text-white`}>
               Developer Fee Address
             </label>
             <input
               id="developerAddress"
+              placeholder="Enter the Ethereum address for receiving developer fees (e.g., 0x789...ghi)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("developerAddress", { required: true })}
             />
@@ -202,11 +206,10 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
-              Minimum ETH Target
-            </label>
+            <label className={`text-sm text-white`}>Minimum ETH Target</label>
             <input
               id="minEth"
+              placeholder="Specify the minimum amount of ETH required (e.g., 10 ETH)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("minEth", { required: true })}
             />
@@ -220,10 +223,11 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>Deadline</label>
+            <label className={`text-sm text-white`}>Deadline</label>
             <input
               id="deadline"
               type="date"
+              placeholder="Select the project deadline in mm/dd/yyyy format (e.g., 12/31/2024)"
               className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("deadline", { required: true })}
             />
@@ -237,12 +241,13 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
-              Participation Token Amount
+            <label className={`text-sm text-white`}>
+              Proof-of-Funding Token Amount
             </label>
             <input
               id="ptaAmount"
               type="number"
+              placeholder="Enter the total number of Proof-of-Funding tokens to issue (e.g., 1000000 tokens)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("ptaAmount", { required: true })}
             />
@@ -263,10 +268,11 @@ const Create = () => {
           /> */}
 
           <div>
-            <label className={`text-sm text-slate-400`}>Exchange Rate</label>
+            <label className={`text-sm text-white`}>Exchange Rate</label>
             <input
               id="rate"
               type="number"
+              placeholder="Specify the exchange rate (e.g., 1 token = 0.01 ETH)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("rate", { required: true })}
             />
@@ -284,11 +290,12 @@ const Create = () => {
             }}
           /> */}
           <div>
-            <label className={`text-sm text-slate-400`}>
+            <label className={`text-sm text-white`}>
               Developer Fee percentage
             </label>
             <input
               id="developerPercentage"
+              placeholder="Enter the developer fee percentage (e.g., 2 for 2%)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("developerPercentage", { required: true })}
             />

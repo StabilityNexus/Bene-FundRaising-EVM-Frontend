@@ -51,7 +51,7 @@ const Home = () => {
   return (
     <div id="projects" className="px-4 xl:px-28 lg:px-20 sm:px-8">
       <h1 className="text-3xl pt-16 font-bold text-white">
-        All Funding Vaults
+        Projects Raising Funds
       </h1>
       <p className="text-slate-200 pt-3 pb-4">
         Each Funding Vault represents a funding project.
@@ -81,7 +81,9 @@ const Home = () => {
           <div key={vault.vaultAddress}>
             <div className="px-7 py-7 bg-slate-950 rounded-lg shadow-md text-white ">
               <h1 className="text-2xl  font-bold ">{vault.title}</h1>
-              <p className="text-sm py-4 ">{vault.description}</p>
+              <p className="text-sm my-4 line-clamp-3 hover:line-clamp-none">
+                {vault.description}
+              </p>
               <div className="flex flex-row justify-between py-4">
                 {/* <h1 className="text-base  text-white">Minimum limit: 56 ETH</h1> */}
                 <h1 className="text-base  ">
@@ -109,13 +111,15 @@ const Home = () => {
           </div>
         ))}
       </div>
-      <a href="" target="_blank" rel="noopener noreferrer">
-        <div className="flex flex-auto align-center justify-center ">
-          <button className=" text-white font-semibold rounded-md py-2 px-5 bg-purple-600 hover:bg-purple-700 ">
-            More Projects
-          </button>
-        </div>
-      </a>
+      {end && start && end - start > 10 && (
+        <a href="" target="_blank" rel="noopener noreferrer">
+          <div className="flex flex-auto align-center justify-center ">
+            <button className=" text-white font-semibold rounded-md py-2 px-5 bg-purple-600 hover:bg-purple-700 ">
+              More Projects
+            </button>
+          </div>
+        </a>
+      )}
     </div>
   );
 };
