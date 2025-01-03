@@ -5,6 +5,11 @@
         "internalType": "uint256",
         "name": "initialSupply",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "initialOwner",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",

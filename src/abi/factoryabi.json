@@ -1,27 +1,33 @@
 [
   {
     "inputs": [],
-    "name": "FundingVaultFactory__CannotBeAZeroAddress",
+    "name": "CannotBeAZeroAddress",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVaultFactory__InvalidIndex",
+    "name": "InvalidIndex",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVaultFactory__MinFundingAmountCanNotBeZero",
+    "name": "MinFundingAmountCanNotBeZero",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVaultFactory__deadlineCannotBeInThePast",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FundingVault__TokenTransferFailed",
+    "name": "deadlineCannotBeInThePast",
     "type": "error"
   },
   {
@@ -91,7 +97,7 @@
       },
       {
         "internalType": "address",
-        "name": "_withdrawlAddress",
+        "name": "_withdrawalAddress",
         "type": "address"
       },
       {
@@ -129,25 +135,6 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_fundingVaultId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFundingVault",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -204,6 +191,40 @@
         "internalType": "struct FundingVaultFactory.Vault[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "vaults",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "vaultAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
