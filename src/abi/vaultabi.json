@@ -62,62 +62,53 @@
   },
   {
     "inputs": [],
-    "name": "FundingVault__AmountCannotBeZero",
+    "name": "EthTransferFailed",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__EthTransferFailed",
+    "name": "EthTransferToDeveloperFailed",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__EthTransferToDeveloperFailed",
+    "name": "EthTransferToWithdrawlFailed",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__EthTransferToWithdrawlFailed",
+    "name": "NotEnoughTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__NotEnoughTokens",
+    "name": "err_deadlineNotPassed",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__TokenTransferFailed",
+    "name": "err_fundsWithdrawn",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__deadlineNotPassed",
+    "name": "minFundingAmountNotReached",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "FundingVault__deadlinePassed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FundingVault__fundsWithdrawn",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FundingVault__minFundingAmountNotReached",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FundingVault__minFundingAmountReached",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "FundingVault__noTokenBalance",
+    "name": "minFundingAmountReached",
     "type": "error"
   },
   {

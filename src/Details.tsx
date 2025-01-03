@@ -1,14 +1,16 @@
 import vaultabi from "./abi/vaultabi.json";
 import abi from "./abi/abi.json";
 import { useReadContract } from "wagmi";
-import { arbitrumSepolia } from "viem/chains";
+//import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
 import { VaultDetailsType } from "./ContractResponseTypes.ts";
 import { formatEther } from "viem";
 import { useBalance } from "wagmi";
+// @ts-expect-error: TypeScript does not have type declarations for this module
 import Microlink from "@microlink/react";
 import VaultActions from "./VaultActions.tsx";
 import Countdown from "./Countdown.tsx";
+import { citreaTestnet } from "./CitreaTestnet.ts";
 
 const Details = () => {
   // Placeholder example values for the funding vault
@@ -16,14 +18,14 @@ const Details = () => {
 
   const balanceOfVault = useBalance({
     address: address,
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
   });
 
   const response = useReadContract({
     abi: vaultabi,
     address: address,
     functionName: "getVaults",
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
     query: {
       enabled: balanceOfVault?.data?.value !== undefined,
     },
@@ -38,7 +40,7 @@ const Details = () => {
     address: vaultDetails?.participationToken,
     functionName: "balanceOf",
     args: [address],
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
     query: {
       enabled: balanceOfVault !== undefined,
     },
@@ -50,7 +52,7 @@ const Details = () => {
     abi: abi,
     address: vaultDetails?.participationToken,
     functionName: "symbol",
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
     query: {
       enabled: VaultCAT !== undefined,
     },
@@ -73,20 +75,22 @@ const Details = () => {
                       {/* Icon placeholder */}
                       {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
                     </div>
-                    <div>
-                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
-                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
-                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
-                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
-                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
-                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
+                    <div className="w-full my-12">
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-2/3 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-4/5 animate-pulse"></div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-2/3 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-4/5 animate-pulse"></div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-2/3 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-4/5 animate-pulse"></div>
+                      <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-2/3 animate-pulse"></div>
+                      <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-4/5 animate-pulse"></div>
                     </div>
                   </div>
                 </div>
-                <div className="w-3/5">
-                  <div className=" mb-2 rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                <div className="w-3/5 mt-4">
+                  <div className="mb-4 rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
                     <div className="flex items-center space-x-3">
-                      <div className="text-red-500 text-2xl">
+                      <div className="text-red-500 text-2xl  my-7">
                         {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
                       </div>
                       <div>
@@ -94,11 +98,17 @@ const Details = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                  <div className=" mb-4 rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
                     <div className="flex items-center space-x-3">
-                      <div className="text-red-500 text-2xl">
-                        {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      <div className="text-red-500 text-2xl  my-7"></div>
+                      <div>
+                        <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-96 animate-pulse"></div>
                       </div>
+                    </div>
+                  </div>
+                  <div className="  rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-red-500 text-2xl  my-7"></div>
                       <div>
                         <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-96 animate-pulse"></div>
                       </div>
@@ -110,13 +120,9 @@ const Details = () => {
               <div className="grid gap-4 xl:grid-cols-[40%_60%] py-3">
                 {/* Detailed Cards Section */}
                 <div>
-                  <div className=" rounded-lg shadow-md border p-6 bg-slate-900 border-slate-950">
+                  <div className="mb-5 rounded-lg shadow-md border p-6 bg-slate-900 border-slate-950">
                     <div className="flex items-center mb-4">
-                      <div className="mr-4 p-3 rounded-full text-2xl">
-                        {/* <svg className="w-6 h-6 text-gray-600"><!-- icon --></svg>
-                ✌ */}
-                        👨🏻‍💼
-                      </div>
+                      <div className="mr-4 p-3 rounded-full text-2xl">📝</div>
                       <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
                     </div>
                     <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
@@ -125,11 +131,7 @@ const Details = () => {
 
                   <div className=" rounded-lg shadow-md border p-6 bg-slate-900 border-slate-950">
                     <div className="flex items-center mb-4">
-                      <div className="mr-4 p-3 rounded-full text-2xl">
-                        {/* <svg className="w-6 h-6 text-gray-600"><!-- icon --></svg>
-                ✌ */}
-                        📝
-                      </div>
+                      <div className="mr-4 p-3 rounded-full text-2xl"> 👨🏻‍💼</div>
                       <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-28 animate-pulse"></div>
                     </div>
                     <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-36 animate-pulse"></div>
