@@ -15,7 +15,7 @@ const Home = () => {
   // First contract call
   const response = useReadContract({
     abi: factoryabi,
-    address: "0x9FfadeC77b96d7CF76567757e860f2766549dA4A",
+    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
     functionName: "getTotalNumberOfFundingVaults",
     chainId: citreaTestnet.id,
   });
@@ -33,7 +33,7 @@ const Home = () => {
   // Second contract call, triggered only when `totalVaults`, `start`, and `end` are defined
   const result = useReadContract({
     abi: factoryabi,
-    address: "0x9FfadeC77b96d7CF76567757e860f2766549dA4A",
+    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
     functionName: "getVaults",
     args: start && end ? [start, end] : undefined, // Only provide args when start and end are set
     chainId: citreaTestnet.id,

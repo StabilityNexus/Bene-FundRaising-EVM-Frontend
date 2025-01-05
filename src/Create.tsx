@@ -38,7 +38,7 @@ const Create = () => {
         address: data.pta,
         functionName: "approve",
         args: [
-          "0x9FfadeC77b96d7CF76567757e860f2766549dA4A",
+          "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
           parseEther(data.ptaAmount),
         ],
         chainId: citreaTestnet.id,
@@ -48,7 +48,7 @@ const Create = () => {
       console.log("1st Transaction submitted:", tx1);
       const tx2 = await writeContractAsync({
         abi: factoryabi,
-        address: "0x9FfadeC77b96d7CF76567757e860f2766549dA4A",
+        address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
         functionName: "deployFundingVault",
         args: [
           data.pta,

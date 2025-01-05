@@ -37,9 +37,8 @@ const Details = () => {
 
   const result = useReadContract({
     abi: abi,
-    address: vaultDetails?.participationToken,
-    functionName: "balanceOf",
-    args: [address],
+    address: address,
+    functionName: "totalSupply",
     chainId: citreaTestnet.id,
     query: {
       enabled: balanceOfVault !== undefined,
@@ -58,8 +57,8 @@ const Details = () => {
     },
   });
   const symbol = _symbol?.data as string;
-
-  console.log(balanceOfVault?.data?.value, vaultDetails?.minFundingAmount);
+  console.log(VaultCAT);
+  //console.log(balanceOfVault?.data?.value, vaultDetails?.minFundingAmount);
   return (
     <div>
       <div className="md:space-y-6 space-x-1 bg-slate-900 px-10 py-10 rounded-md border mx:1 md:mx-16 my-5 border-slate-950 text-white">
@@ -149,7 +148,7 @@ const Details = () => {
               </div>
             </div>
           )}
-          {balanceOfVault.data && symbol && VaultCAT && vaultDetails && (
+          {balanceOfVault.data && symbol && vaultDetails && (
             <div>
               <h1 className="text-2xl font-bold text-white pb-6 ">
                 {vaultDetails.projectTitle}
@@ -167,11 +166,15 @@ const Details = () => {
                   <div className=" xl:ml-5 my-5 px-5 py-5 border border-slate-950 shadow-md">
                     <h1 className="text-slate-400">Proof-of-Funding Tokens</h1>
                     <p>
-                      {formatEther(BigInt(VaultCAT))} {symbol} Remaining out of{" "}
+                      {formatEther(
+                        BigInt(vaultDetails.participationTokenAmount) -
+                          BigInt(VaultCAT),
+                      )}{" "}
+                      {symbol} Vouchers Remaining out of{" "}
                       {formatEther(
                         BigInt(vaultDetails.participationTokenAmount),
                       )}{" "}
-                      {symbol}
+                      {symbol} Vouchers
                     </p>
                     <div
                       className=" flex w-full h-2  rounded-full overflow-hidden bg-slate-950"
@@ -183,7 +186,7 @@ const Details = () => {
                       <div
                         className="flex flex-col h-2 content-center overflow-hidden bg-purple-500 text-xs text-white text-center whitespace-nowrap transition duration-500 "
                         style={{
-                          width: `${(Number(VaultCAT) / Number(vaultDetails.participationTokenAmount)) * 100}%`,
+                          width: `${((Number(vaultDetails.participationTokenAmount) - Number(VaultCAT)) / Number(vaultDetails.participationTokenAmount)) * 100}%`,
                         }}
                       ></div>
                     </div>
@@ -248,7 +251,7 @@ const Details = () => {
                   </div>
                 </div>
                 <div>
-                  {balanceOfVault.data && VaultCAT && vaultDetails && (
+                  {balanceOfVault.data && symbol && vaultDetails && (
                     <VaultActions
                       withdrawalAddress={vaultDetails?.withdrawlAddress}
                     />
