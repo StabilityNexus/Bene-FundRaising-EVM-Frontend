@@ -26,14 +26,18 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const tabs = [
     "Fund Project",
     "Refund",
+    "Redeem",
     "Withdraw Funds",
-    "Add CAT",
-    "Withdraw Unsold CAT",
+    "Add PKT",
+    "Withdraw Unsold PKT",
   ];
   const visibleTabs =
     account.address === withdrawalAddress
       ? tabs
-      : tabs.filter((tab) => tab === "Fund Project" || tab === "Refund");
+      : tabs.filter(
+          (tab) =>
+            tab === "Fund Project" || tab === "Refund" || tab === "Redeem",
+        );
 
   const {
     register,
@@ -205,6 +209,26 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               </div>
             </p>
           )}
+          {activeTab === "Redeem" && (
+            <p>
+              <div>
+                <p className="">Redeem your vouchers for CAT</p>
+                <button
+                  onClick={handleRefund}
+                  disabled={!nativecurrency}
+                  className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+                >
+                  <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
+
+                  <span className="text-white">
+                    {nativecurrency
+                      ? `${isSubmitting ? "Processing..." : `Redeem`}`
+                      : "Connect Wallet"}
+                  </span>
+                </button>
+              </div>
+            </p>
+          )}
           {activeTab === "Withdraw Funds" && (
             <div>
               <p className="">Withdraw Funds</p>
@@ -220,9 +244,9 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               </button>
             </div>
           )}
-          {activeTab === "Add CAT" && (
+          {activeTab === "Add PKT" && (
             <form onSubmit={handleSubmit2(onSubmitForm2)}>
-              <p className="pb-5">Add more Contribution Accounting Tokens</p>
+              <p className="pb-5">Add more Proof-of-Funding Tokens</p>
               <input
                 className="input h-[34px]  text-[14px] text-white/60 w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
                 type="number"
@@ -239,14 +263,14 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {isSubmitting2 ? "Processing..." : `Add CATs`}
+                  {isSubmitting2 ? "Processing..." : `Add PTKs`}
                 </span>
               </button>
             </form>
           )}
-          {activeTab === "Withdraw Unsold CAT" && (
+          {activeTab === "Withdraw Unsold PTK" && (
             <form onSubmit={handleSubmit3(onSubmitForm3)}>
-              <p className="pb-5">Withdraw Contribution Accounting Tokens</p>
+              <p className="pb-5">Withdraw Proof-of-Funding Tokens</p>
               <input
                 className="input h-[34px]  text-[14px] text-white/60 w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
                 type="number"
@@ -263,7 +287,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {isSubmitting3 ? "Processing..." : `Withdraw CATs`}
+                  {isSubmitting3 ? "Processing..." : `Withdraw PTKs`}
                 </span>
               </button>
             </form>
