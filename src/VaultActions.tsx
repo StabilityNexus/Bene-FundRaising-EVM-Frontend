@@ -4,8 +4,9 @@ import { parseEther } from "viem";
 import { useWriteContract } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
 import { useAccount } from "wagmi";
-import { arbitrumSepolia } from "viem/chains";
+//import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
+import { citreaTestnet } from "./CitreaTestnet";
 
 type Inputs = {
   ethAmount: string;
@@ -46,7 +47,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         address: address as `0x${string}`,
         functionName: "purchaseTokens",
         value: parseEther(data.ethAmount),
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
@@ -68,7 +69,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         address: address as `0x${string}`,
         functionName: "addTokens",
         args: [parseEther(data.ethAmount)],
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
@@ -89,7 +90,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         address: address as `0x${string}`,
         functionName: "withdrawUnsoldTokens",
         args: [parseEther(data.ethAmount)],
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
@@ -105,7 +106,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "withdrawFunds",
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
@@ -121,7 +122,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "refundTokens",
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));

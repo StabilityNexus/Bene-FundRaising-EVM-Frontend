@@ -4,8 +4,9 @@ import { useWriteContract } from "wagmi";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
-import { arbitrumSepolia } from "viem/chains";
+//import { sepolia } from "viem/chains";
 import { parseEther } from "viem";
+import { citreaTestnet } from "./CitreaTestnet";
 type Inputs = {
   title: string;
   url: string;
@@ -37,17 +38,17 @@ const Create = () => {
         address: data.pta,
         functionName: "approve",
         args: [
-          "0x3d927Cf8E568856e379FDAaaa131d16aCa652e6d",
+          "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
           parseEther(data.ptaAmount),
         ],
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
       console.log("1st Transaction submitted:", tx1);
       const tx2 = await writeContractAsync({
         abi: factoryabi,
-        address: "0x3d927Cf8E568856e379FDAaaa131d16aCa652e6d",
+        address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
         functionName: "deployFundingVault",
         args: [
           data.pta,
@@ -56,13 +57,13 @@ const Create = () => {
           timestamp,
           data.rate,
           data.withdrawAddress,
-          data.developerAddress,
+          "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
           data.developerPercentage,
           data.url,
           data.title,
           data.description,
         ],
-        chainId: arbitrumSepolia.id,
+        chainId: citreaTestnet.id,
       });
       console.log("2nd Transaction submitted:", tx2);
     } catch (error) {
@@ -135,7 +136,7 @@ const Create = () => {
           {...register("description", { required: true })}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 py-5">
+        <div className="grid grid-cols-1 md:grid-cols-2  gap-10 py-5">
           {/* <Input
             label={"Target"}
             type={"number"}
@@ -182,7 +183,7 @@ const Create = () => {
             name="image"
             validation={{}}
           /> */}
-          <div>
+          {/* <div>
             <label className={`text-sm text-white`}>
               Developer Fee Address
             </label>
@@ -192,7 +193,7 @@ const Create = () => {
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("developerAddress", { required: true })}
             />
-          </div>
+          </div> */}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 py-5">
           {/* <Input

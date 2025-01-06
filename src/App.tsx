@@ -35,7 +35,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           coolMode
-          initialChain={chains.arbitrumSepolia}
+          initialChain={citreaTestnet}
           theme={darkTheme({
             accentColor: "#7b3fe4",
             accentColorForeground: "white",
@@ -53,7 +53,7 @@ export default function App() {
                 <Route path="/details/:address" element={<Details />} />
               </Routes>
             </Router>
-            <footer className="text-white text-center py-4 pt-20 mt-auto">
+            <footer className="text-white text-center py-4 pt-20">
               <div className="container mx-auto">
                 <p className="text-sm">
                   &copy; {new Date().getFullYear()} Stability Nexus. All rights

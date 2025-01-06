@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { VaultArrayType } from "./ContractResponseTypes.ts";
 import factoryabi from "./abi/factoryabi.json";
 import { useReadContract } from "wagmi";
-import { arbitrumSepolia } from "viem/chains";
+//import { sepolia } from "viem/chains";
 import { useNavigate } from "react-router-dom";
 import Countdown from "./Countdown.tsx";
+import { citreaTestnet } from "./CitreaTestnet.ts";
 const Home = () => {
   const [totalVaults, setTotalVaults] = useState<number>();
   const [start, setStart] = useState<number>();
@@ -14,9 +15,9 @@ const Home = () => {
   // First contract call
   const response = useReadContract({
     abi: factoryabi,
-    address: "0x3d927Cf8E568856e379FDAaaa131d16aCa652e6d",
+    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
     functionName: "getTotalNumberOfFundingVaults",
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
   });
 
   // Update totalVaults, start, and end only when `response` fetches new data
@@ -32,10 +33,10 @@ const Home = () => {
   // Second contract call, triggered only when `totalVaults`, `start`, and `end` are defined
   const result = useReadContract({
     abi: factoryabi,
-    address: "0x3d927Cf8E568856e379FDAaaa131d16aCa652e6d",
+    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
     functionName: "getVaults",
     args: start && end ? [start, end] : undefined, // Only provide args when start and end are set
-    chainId: arbitrumSepolia.id,
+    chainId: citreaTestnet.id,
     query: {
       enabled:
         totalVaults !== undefined && start !== undefined && end !== undefined,
@@ -50,7 +51,7 @@ const Home = () => {
   };
 
   return (
-    <div id="projects" className="px-4 xl:px-28 lg:px-20 sm:px-8">
+    <div id="projects" className="px-4 xl:px-28 lg:px-20 sm:px-8 ">
       <h1 className="text-3xl pt-16 font-bold text-white">
         Projects Raising Funds
       </h1>
