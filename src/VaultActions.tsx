@@ -29,7 +29,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     "Redeem",
     "Withdraw Funds",
     "Add PKT",
-    "Withdraw Unsold PKT",
+    "Withdraw Unsold PTK",
   ];
   const visibleTabs =
     account.address === withdrawalAddress
@@ -135,6 +135,21 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
       console.error("Contract call failed:", error);
     }
   };
+  const handleRedeem = async () => {
+    try {
+      const tx1 = await writeContractAsync({
+        abi: vaultabi,
+        address: address as `0x${string}`,
+        functionName: "redeem",
+        chainId: citreaTestnet.id,
+      });
+      // Wait for approximately 6 seconds for 3 block confirmations
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+      console.log("1st Transaction submitted:", tx1);
+    } catch (error) {
+      console.error("Contract call failed:", error);
+    }
+  };
   return (
     <div className=" mb-5 space-y-6 bg-slate-900 px-10 py-10 rounded-md border  border-slate-950 text-white">
       <div>
@@ -214,7 +229,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               <div>
                 <p className="">Redeem your vouchers for CAT</p>
                 <button
-                  onClick={handleRefund}
+                  onClick={handleRedeem}
                   disabled={!nativecurrency}
                   className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
                 >
