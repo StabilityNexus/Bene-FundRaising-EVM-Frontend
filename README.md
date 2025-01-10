@@ -15,14 +15,15 @@ Bene: Fundraising Platform is a decentralized application (DApp) that enables pr
 ### How it Works
 
 - Each project contains two tokens:
-  1.  **Auxiliary Project Token (APT)**: This token is minted during the project creation transaction and serves a main purposes:
 
-      - **Contribution Tracking**: Temporarily, contributors receive this token when participating in the project. Once it is confirmed that a refund is no longer possible, contributors can exchange the APT for the **Proof-funding Token (PFT)**.
-      - The total supply of APT equals the total issuance of PFT.
+  1.  **Proof-of-Funding Token Vouchers (PFTV)**: This token is minted during the project creation transaction and serves a main purposes:
 
-  2.  **Proof-funding Token (PFT)**: Unlike the APT, the PFT is not minted on the contract. It represents the project or its organization and may also reflect proof-funding for similar projects within the same organization. PFTs are distributed only after refund conditions are no longer applicable, ensuring proper tracking.
+      - **Contribution Tracking**: Temporarily, contributors receive this token when participating in the project. Once it is confirmed that a refund is no longer possible, contributors can exchange the PFTV for the **Proof-funding Token (PFT)**.
+      - The total supply of PFTV equals the total issuance of PFT.
 
-> The use of the APT ensures that during refunds, the origin of the token can be reliably traced to the current project. If PFTs were distributed immediately upon purchase, distinguishing whether a token originated from the current project or another related project would not be possible.
+  2.  **Proof-funding Token (PFT)**: Unlike the PFTV, the PFT is not minted on the contract. It represents the project or its organization and may also reflect proof-funding for similar projects within the same organization. PFTs are distributed only after refund conditions are no longer applicable, ensuring proper tracking.
+
+> The use of the PFTV ensures that during refunds, the origin of the token can be reliably traced to the current project. If PFTs were distributed immediately upon purchase, distinguishing whether a token originated from the current project or another related project would not be possible.
 
 - Project owners can create a funding vault that holds an amount of tokens, which may vary, setting a **timestamp** as a deadline.
 - A minimum amount of tokens must be sold before the project can withdraw funds. This ensures that the project receives sufficient backing.
@@ -44,8 +45,8 @@ Bene: Fundraising Platform is a decentralized application (DApp) that enables pr
 
 The following constants are defined in the contract:
 
-- **Developer Address** (`dev_addr`): The base58 address of the developer.
-- **Developer Fee** (`dev_fee`): The percentage fee taken by the developer (e.g., `5` for 5%).
+- **Protocol Treasury Address** (`dev_addr`): The base58 address of the developer.
+- **Protocol Fee** (`dev_fee`): The percentage fee taken by the developer (e.g., `5` for 5%).
 
 ## Processes
 
@@ -59,12 +60,12 @@ The Bene: Fundraising Platform supports seven main processes:
 
 2. **Token Acquisition**:
 
-   - Users are allowed to exchange ETHs for **Auxiliary Project Tokens (APTs)** (at the R7 exchange rate) until there are no more tokens left, even if the deadline has passed.
-   - Users receive APTs in their own funding vaultes, which adhere to token standards, making them visible and transferable through ETH wallets.
+   - Users are allowed to exchange ETHs for **Proof of Funding Token Vouchers (PFTVs)** (at the R7 exchange rate) until there are no more tokens left, even if the deadline has passed.
+   - Users receive PFTVs in their own funding vaultes, which adhere to token standards, making them visible and transferable through ETH wallets.
 
 3. **Refund Tokens**:
 
-   - Users are allowed to exchange APTs for ETHs (at the exchange rate) if and only if the deadline has passed and the minimum number of tokens has not been sold.
+   - Users are allowed to exchange PFTVs for ETHs (at the exchange rate) if and only if the deadline has passed and the minimum number of tokens has not been sold.
    - This ensures that participants can retrieve their contributions if the funding goal is not met.
 
 4. **Withdraw ETHs**:
@@ -79,10 +80,10 @@ The Bene: Fundraising Platform supports seven main processes:
 
 6. **Add Tokens**:
 
-   - Project owners are allowed to add more APTs to the contract at any time.
+   - Project owners are allowed to add more PFTVs to the contract at any time.
 
 7. **Redeem Tokens**:
-   - Users are allowed to exchange **Auxiliary Project Tokens (APTs)** for **Proof-funding Tokens (PFTs)** if and only if the deadline has passed and the minimum number of tokens has been sold.
+   - Users are allowed to exchange **Proof of Funding Token Vouchers (PFTVs)** for **Proof-funding Tokens (PFTs)** if and only if the deadline has passed and the minimum number of tokens has been sold.
 
 ## Usage
 
