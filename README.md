@@ -36,7 +36,7 @@ Bene: Fundraising Platform is a decentralized application (DApp) that enables pr
 - **Proof of funding Token Address**: The smart contract address for the Proof-of-Funding token (e.g., 0x123...abc)
 - **Proof of funding Token Amount**: Total Proof of funding tokens for the vault
 - **ETH/Token Exchange Rate**: The exchange rate of ETHs per token.
-- **Withdrawl Address**: The address to withdraw funds after raised successfully.
+- **withdrawal Address**: The address to withdraw funds after raised successfully.
 - **Project Title**: Title of the Project
 - **Project URL**: URL of the Project
 - **Project Description**: Description of the Project
@@ -60,7 +60,7 @@ The Bene: Fundraising Platform supports seven main processes:
 
 2. **Token Acquisition**:
 
-   - Users are allowed to exchange ETHs for **Proof of Funding Token Vouchers (PFTVs)** (at the R7 exchange rate) until there are no more tokens left, even if the deadline has passed.
+   - Users are allowed to exchange ETHs for **Proof of Funding Token Vouchers (PFTVs)** (at exchange rate) until there are no more tokens left, even if the deadline has passed.
    - Users receive PFTVs in their own funding vaultes, which adhere to token standards, making them visible and transferable through ETH wallets.
 
 3. **Refund Tokens**:
@@ -71,12 +71,12 @@ The Bene: Fundraising Platform supports seven main processes:
 4. **Withdraw ETHs**:
 
    - Project owners are allowed to withdraw ETHs if and only if the minimum number of tokens has been sold.
-   - Project owners can only withdraw to the address specified in `withdrawl_address`.
+   - Project owners can only withdraw to the address specified in `withdrawal_address`.
 
 5. **Withdraw Unsold Tokens**:
 
    - Project owners are allowed to withdraw unsold PFTs from the contract at any time.
-   - Project owners can only withdraw to the address specified in `withdrawl_address`.
+   - Project owners can only withdraw to the address specified in `withdrawal_address`.
 
 6. **Add Tokens**:
 
