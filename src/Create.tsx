@@ -58,7 +58,7 @@ const Create = () => {
           data.rate,
           data.withdrawAddress,
           "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
-          data.developerPercentage,
+          "4",
           data.url,
           data.title,
           data.description,
@@ -195,7 +195,7 @@ const Create = () => {
             />
           </div> */}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 py-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 py-5">
           {/* <Input
             label={"Target"}
             type={"number"}
@@ -223,7 +223,7 @@ const Create = () => {
             name="deadline"
             validation={{}}
           /> */}
-          <div>
+          {/* <div>
             <label className={`text-sm text-white`}>Deadline</label>
             <input
               id="deadline"
@@ -232,7 +232,7 @@ const Create = () => {
               className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("deadline", { required: true })}
             />
-          </div>
+          </div> */}
           {/* <Input
             label={"Image Link"}
             type={"url"}
@@ -291,14 +291,13 @@ const Create = () => {
             }}
           /> */}
           <div>
-            <label className={`text-sm text-white`}>
-              Developer Fee percentage
-            </label>
+            <label className={`text-sm text-white`}>Deadline</label>
             <input
-              id="developerPercentage"
-              placeholder="Enter the developer fee percentage (e.g., 2 for 2%)"
-              className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
-              {...register("developerPercentage", { required: true })}
+              id="deadline"
+              type="date"
+              placeholder="Select the project deadline in mm/dd/yyyy format (e.g., 12/31/2024)"
+              className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
+              {...register("deadline", { required: true })}
             />
           </div>
         </div>
