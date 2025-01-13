@@ -1,18 +1,81 @@
-# Bene: Fundraising Platform
+<!-- Don't delete it -->
+<div name="readme-top"></div>
 
-## Overview
+<!-- Organization Logo -->
+<div align="center">
+  <img alt="Stability Nexus" src="public/orglogo.svg" width="175">
+  &nbsp;
+  &nbsp;
+  <img src="public/plusSign" width="30" height="175" />
+  &nbsp;
+  &nbsp;
+  <img src="public/logo.svg" width="175" />
+</div>
 
-Bene: Fundraising Platform is a decentralized application (DApp) that enables projects to receive funding in exchange for Proof of funding tokens. This DApp allows projects to request ETH(native currency of the network) in exchange for Proof of funding tokens.
+&nbsp;
 
-#### Smart Contracts Repository:
+<!-- Organization Name -->
+<div align="center">
 
-(https://github.com/StabilityNexus/BenefactionPlatform-EVM)
+[![Static Badge](https://img.shields.io/badge/Stability_Nexus-/Bene-228B22?style=for-the-badge&labelColor=FFC517)](https://bene-evm.stability.nexus/)
 
-#### Live Website URL
+</div>
 
-(https://bene-evm.stability.nexus)
+<!-- Organization/Project Social Handles -->
+<p align="center">
+<!-- Telegram -->
+<a href="https://t.me/StabilityNexus">
+<img src="https://img.shields.io/badge/Telegram-black?style=flat&logo=telegram&logoColor=white&logoSize=auto&color=24A1DE" alt="Telegram Badge"/></a>
+&nbsp;&nbsp;
+<!-- X (formerly Twitter) -->
+<a href="https://x.com/StabilityNexus">
+<img src="https://img.shields.io/twitter/follow/StabilityNexus" alt="X (formerly Twitter) Badge"/></a>
+&nbsp;&nbsp;
+<!-- Discord -->
+<a href="https://discord.gg/YzDKeEfWtS">
+<img src="https://img.shields.io/discord/995968619034984528?style=flat&logo=discord&logoColor=white&logoSize=auto&label=Discord&labelColor=5865F2&color=57F287" alt="Discord Badge"/></a>
+&nbsp;&nbsp;
+<!-- Medium -->
+<a href="https://news.stability.nexus/">
+  <img src="https://img.shields.io/badge/Medium-black?style=flat&logo=medium&logoColor=black&logoSize=auto&color=white" alt="Medium Badge"></a>
+&nbsp;&nbsp;
+<!-- LinkedIn -->
+<a href="https://linkedin.com/company/stability-nexus">
+  <img src="https://img.shields.io/badge/LinkedIn-black?style=flat&logo=LinkedIn&logoColor=white&logoSize=auto&color=0A66C2" alt="LinkedIn Badge"></a>
+&nbsp;&nbsp;
+<!-- Youtube -->
+<a href="https://www.youtube.com/@StabilityNexus">
+  <img src="https://img.shields.io/youtube/channel/subscribers/UCZOG4YhFQdlGaLugr_e5BKw?style=flat&logo=youtube&logoColor=white&logoSize=auto&labelColor=FF0000&color=FF0000" alt="Youtube Badge"></a>
+</p>
 
-### How it Works
+&nbsp;
+
+<!-- Project core values and objective -->
+<p align="center">
+  <strong>
+ Bene: Fundraising Platform is a decentralized application (DApp) that enables projects to receive funding in exchange for Proof of funding tokens. This DApp allows projects to request ETH(native currency of the network) in exchange for Proof of funding tokens, <a href="https://www.youtube.com/watch?v=HHN31PkUxaU">Know More</a>.
+  </strong>
+</p>
+
+---
+
+# Bene-Fundraising-EVM-Frontend
+
+<details>
+  <summary>Smart Contracts Repository</summary>
+  <ul>
+    <li>https://github.com/StabilityNexus/BenefactionPlatform-EVM</li>
+  </ul>
+</details>
+<details>
+  <summary>Live Webiste URL</summary>
+  <ul>
+    <li>https://bene-evm.stability.nexus/</li>
+  </ul>
+</details>
+
+<details>
+  <summary>How it works</summary>
 
 - Each project contains two tokens:
 
@@ -29,8 +92,10 @@ Bene: Fundraising Platform is a decentralized application (DApp) that enables pr
 - A minimum amount of tokens must be sold before the project can withdraw funds. This ensures that the project receives sufficient backing.
 - If the timestamp is reached before minimum amount of tokens are sold, users have the option to exchange their tokens back for the corresponding ETHs, provided the minimum has not been reached.
 
-## Parameters of a funding vault
-
+</details>
+<details>
+  <summary>Parameters of the funding vault</summary>
+  
 - **timestamp**: The timestamp limit until withdrawal or refund is allowed.
 - **Minimum Funding Amount**: The minimum number of ETH needs to be raised to enable withdrawals or refunds.
 - **Proof of funding Token Address**: The smart contract address for the Proof-of-Funding token (e.g., 0x123...abc)
@@ -48,8 +113,10 @@ The following constants are defined in the contract:
 - **Protocol Treasury Address** (`dev_addr`): The base58 address of the developer.
 - **Protocol Fee** (`dev_fee`): The percentage fee taken by the developer (e.g., `5` for 5%).
 
-## Processes
-
+</details>
+<details>
+  <summary>Processes</summary>
+ 
 The Bene: Fundraising Platform supports seven main processes:
 
 1. **funding vault Creation**:
@@ -85,15 +152,17 @@ The Bene: Fundraising Platform supports seven main processes:
 7. **Redeem Tokens**:
    - Users are allowed to exchange **Proof of Funding Token Vouchers (PFTVs)** for **Proof-funding Tokens (PFTs)** if and only if the deadline has passed and the minimum number of tokens has been sold.
 
-## Usage
-
-You can interact with the platform using the following webpage:
+</details>
+<details>
+  <summary>Usage</summary>
+ You can interact with the platform using the following webpage:
 
 (https://bene-evm.stability.nexus/)
 
-## Installation
-
-## Prerequisites
+</details>
+<details>
+  <summary>Installation</summary>
+  ## Prerequisites
 
 - **Node.js and npm (or yarn):** Ensure you have the latest versions installed. You can download them from the [official Node.js website](https://nodejs.org/).
 - **Code Editor:** Choose a code editor like [Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](https://www.sublimetext.com/), or [WebStorm](https://www.jetbrains.com/webstorm/).
@@ -103,8 +172,8 @@ You can interact with the platform using the following webpage:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/benefactionevm.git
-cd benefactionevm
+git clone https://github.com/StabilityNexus/BenefactionPlatform-EVM
+cd BenefactionPlatform-EVM
 ```
 
 ### Install Dependencies
@@ -121,3 +190,18 @@ npm run dev
 ```
 
 This will start a development server, and your project will be accessible at http://localhost:5173/.
+
+</details>
+
+<!-- Project Description (Start from here) -->
+
+<!-- Use Back Button after each section -->
+<div align="right"><kbd><a href="#readme-top">↑ Back to top ↑</a></kbd></div>
+
+---
+
+<!-- Don't delete it -->
+<!-- Funding Badge -->
+<div align="center" name="fund">
+<a href="https://docs.stability.nexus/about-us/fund-us"><img src="public/Readmefooter.svg" alt="Fund Gluon Gold Badge"/></a>
+</div>
