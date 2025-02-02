@@ -8,6 +8,7 @@ import abi from "./abi/abi.json";
 import { parseEther } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
 type Inputs = {
+  fundingType: "ETH" | "ERC20";
   title: string;
   url: string;
   description: string;
@@ -19,6 +20,7 @@ type Inputs = {
   ptaAmount: string;
   rate: string;
   developerPercentage: string;
+  fundingToken?: `0x${string}`; // Add fundingToken for ERC20 vaults
 };
 
 const Create = () => {
@@ -26,6 +28,7 @@ const Create = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -57,6 +60,7 @@ const Create = () => {
           timestamp,
           data.rate,
           data.withdrawAddress,
+          data.fundingType === "ETH" ? "0x0000000000000000000000000000000000000000" : data.fundingToken, // Handle native ETH
           "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
           "4",
           data.url,
@@ -79,6 +83,39 @@ const Create = () => {
       <div className="py-3 flex flex-col gap-2">
         <h1 className="text-2xl text-white">Create new Funding Vault</h1>
       </div>
+      <div className="mt-4">
+      <label className="text-lg text-white  font-medium ">Funding Type</label>
+      <div className="flex gap-4 text-white mt-2">
+        <label className="flex items-center gap-2 ">
+          <input
+            type="radio"
+            value="ETH"
+            {...register("fundingType", { required: true })}
+          />
+          Native ETH
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            value="ERC20"
+            {...register("fundingType", { required: true })}
+          />
+          ERC20 Token
+        </label>
+      </div>
+      </div>
+      {watch("fundingType")==="ERC20" &&(
+        <div className="pt-4">
+        <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
+        <input
+          id="fundingToken"
+          placeholder="Enter ERC20 token address"
+          className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
+          {...register("fundingToken", { required: watch("fundingType") === "ERC20" })}
+        />
+      </div>
+
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-5">
