@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <div className="py-5 bg-slate-950 flex flex-row justify-between align-middle flex-wrap px-4">
       <div className="flex flex-row gap-6">
-        <Link to={"/"} className="flex items-center bg-transparent">
+        <Link to={"/"} className="flex items-center">
           <img src="/Benelogo.svg" alt="" className="w-8 h-8 flex items mt-[1px]"/>
           <span className=" text-2xl px-1  font-bold text-white">Bene</span>
         </Link>
