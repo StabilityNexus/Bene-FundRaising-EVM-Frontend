@@ -79,10 +79,19 @@ const Home = () => {
             </div>
           ))}
 
-        {vaults?.map((vault) => (
+        {vaults?.map((vault, index) => (
           <div key={vault.vaultAddress}>
-            <div className="px-7 py-7 bg-slate-950 rounded-lg shadow-md text-white ">
-              <h1 className="text-2xl  font-bold ">{vault.title}</h1>
+            <div
+              className="px-7 py-7  rounded-lg shadow-md text-white bg-no-repeat  bg-cover"
+              style={{
+                backgroundImage: `url(${index % 3 === 0 ? "card-3.svg" : index % 3 === 1 ? "card-2.svg" : "card-3.svg"})`,
+              }}
+            >
+              <h1
+                className={`text-2xl font-bold ${index % 3 === 0 ? "text-[#5490ff]" : index % 3 === 1 ? "text-[#FFa500]" : "text-[#5490ff]"}`}
+              >
+                {vault.title}
+              </h1>
               <p className="text-sm my-4 line-clamp-3 hover:line-clamp-none">
                 {vault.description}
               </p>
@@ -104,7 +113,13 @@ const Home = () => {
                 </button> */}
                 <button
                   onClick={() => handleNavigate(vault.vaultAddress)}
-                  className="min-w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600"
+                  className={`min-w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 ${
+                    index % 3 === 0
+                      ? "border-[#005aff]/70 hover:border-[#005aff]"
+                      : index % 3 === 1
+                        ? "border-[#FFa500]/70 hover:border-[#FFa500]"
+                        : "border-[#005aff]/70 hover:border-[#005aff]"
+                  }`}
                 >
                   <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
