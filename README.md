@@ -53,7 +53,7 @@
 <!-- Project core values and objective -->
 <p align="center">
   <strong>
- Bene is a Fundraising Platform that allows project owners to raise funds for their projects and reward funders with Proof-of-Funding tokens.
+ Bene allows project owners to raise funds for their projects and to reward funders with Proof-of-Funding tokens.
   </strong>
 </p>
 
