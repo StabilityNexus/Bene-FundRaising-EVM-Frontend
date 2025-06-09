@@ -71,8 +71,8 @@ A live deployment of this frontend has been deployed to [https://bene-evm.stabil
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/StabilityNexus/BenefactionPlatform-EVM
-cd BenefactionPlatform-EVM
+git clone https://github.com/StabilityNexus/Bene-FundRaising-EVM-Frontend
+cd Bene-FundRaising-EVM-Frontend
 ```
 
 ### Install Dependencies
