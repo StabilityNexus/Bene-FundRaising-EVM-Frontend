@@ -6,10 +6,10 @@
   <img alt="Stability Nexus" src="public/orglogo.svg" width="175">
   &nbsp;
   &nbsp;
-  <img src="public/plusSign" width="30" height="175" />
+  <img src="public/plusSign.svg" width="30" height="175" />
   &nbsp;
   &nbsp;
-  <img src="public/logo.svg" width="175" />
+  <img src="public/Benelogo.svg" width="175" />
 </div>
 
 &nbsp;
