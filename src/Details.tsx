@@ -1,3 +1,4 @@
+import { useState } from "react";
 import vaultabi from "./abi/vaultabi.json";
 import abi from "./abi/abi.json";
 import { useReadContract } from "wagmi";
@@ -10,9 +11,11 @@ import { useBalance } from "wagmi";
 import Microlink from "@microlink/react";
 import VaultActions from "./VaultActions.tsx";
 import Countdown from "./Countdown.tsx";
+import ShareModal from "./ShareModal.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
 
 const Details = () => {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   // Placeholder example values for the funding vault
   const { address } = useParams<{ address: `0x${string}` }>();
 
@@ -150,9 +153,26 @@ const Details = () => {
           )}
           {balanceOfVault.data && symbol && vaultDetails && (
             <div>
-              <h1 className="text-2xl font-bold text-white pb-6 ">
-                {vaultDetails.projectTitle}
-              </h1>
+              <div className="flex flex-row justify-between items-center pb-6">
+                <h1 className="text-2xl font-bold text-white">
+                  {vaultDetails.projectTitle}
+                </h1>
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors transform hover:scale-105"
+                  title="Share this campaign"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M13 3a1 1 0 11-2 0 1 1 0 012 0zM18 8a1 1 0 11-2 0 1 1 0 012 0zM6 8a1 1 0 11-2 0 1 1 0 012 0zM13 20a1 1 0 11-2 0 1 1 0 012 0zM18 13a1 1 0 100-2 1 1 0 000 2zM6 13a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
+                  Share
+                </button>
+              </div>
               <div className="flex flex-row flex-wrap xl:flex-nowrap justify-around">
                 <div className="xl:w-1/2 w-full ">
                   <Microlink
@@ -275,6 +295,17 @@ const Details = () => {
           )}
         </div>
       </div>
+
+      {/* Share Modal */}
+      {vaultDetails && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          projectTitle={vaultDetails.projectTitle}
+          projectUrl={`${window.location.origin}/details/${address}`}
+          organizationTag="@BeneFundRaising"
+        />
+      )}
 
       {/* {balanceOfVault.data && VaultCAT && vaultDetails && (
         <VaultActions withdrawalAddress={vaultDetails?.withdrawlAddress} />

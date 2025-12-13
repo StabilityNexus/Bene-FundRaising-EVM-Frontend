@@ -5,11 +5,17 @@ import { useReadContract } from "wagmi";
 //import { sepolia } from "viem/chains";
 import { useNavigate } from "react-router-dom";
 import Countdown from "./Countdown.tsx";
+import ShareModal from "./ShareModal.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
 const Home = () => {
   const [totalVaults, setTotalVaults] = useState<number>();
   const [start, setStart] = useState<number>();
   const [end, setEnd] = useState<number>();
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedVault, setSelectedVault] = useState<{
+    title: string;
+    address: string;
+  } | null>(null);
   const navigate = useNavigate();
 
   // First contract call
@@ -104,16 +110,10 @@ const Home = () => {
                   />
                 </h1>
               </div>
-              <div className="">
-                {/* <button
-                  className="min-w-full py-2 bg-slate-100 text-black  hover:text-white  rounded-md hover:border-2  hover:border-purple-600 hover:bg-slate-950"
-                  onClick={() => handleNavigate(vault.vaultAddress)}
-                >
-                  View Details
-                </button> */}
+              <div className="flex gap-2 flex-col sm:flex-row">
                 <button
                   onClick={() => handleNavigate(vault.vaultAddress)}
-                  className={`min-w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 ${
+                  className={`flex-1 flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 whitespace-pre md:flex group relative justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 ${
                     index % 3 === 0
                       ? "border-[#005aff]/70 hover:border-[#005aff]"
                       : index % 3 === 1
@@ -122,8 +122,21 @@ const Home = () => {
                   }`}
                 >
                   <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
-
                   <span className="text-white">View Details</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedVault({
+                      title: vault.title,
+                      address: vault.vaultAddress,
+                    });
+                    setShareModalOpen(true);
+                  }}
+                  className="flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-purple-600 hover:bg-purple-700 text-white shadow px-4 py-2 rounded-md transition-all duration-300 ease-out gap-2 group relative"
+                  title="Share campaign"
+                >
+                  <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
+                  <span>Share</span>
                 </button>
               </div>
             </div>
@@ -139,7 +152,19 @@ const Home = () => {
           </div>
         </a>
       )}
-    </div>
+      {/* Share Modal */}
+      {selectedVault && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => {
+            setShareModalOpen(false);
+            setSelectedVault(null);
+          }}
+          projectTitle={selectedVault.title}
+          projectUrl={`${window.location.origin}/details/${selectedVault.address}`}
+          organizationTag="@BeneFundRaising"
+        />
+      )}    </div>
   );
 };
 
