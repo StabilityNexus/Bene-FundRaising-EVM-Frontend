@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 import { useWriteContract, useReadContract } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
 import erc20abi from "./abi/erc20abi.json";
@@ -82,7 +82,14 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     handleSubmit,
     formState: { isSubmitting },
   } = useForm<Inputs>();
+  
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
+    // Guard: For ERC20 tokens, ensure decimals are loaded
+    if (!isNativeCurrency && tokenDecimals === undefined) {
+      console.error("Token decimals not loaded yet");
+      return;
+    }
+
     try {
       if (isNativeCurrency) {
         // For native currency, use msg.value
@@ -97,8 +104,8 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         await new Promise((resolve) => setTimeout(resolve, 6000));
         console.log("1st Transaction submitted:", tx1);
       } else {
-        // For ERC20 token, need to approve first
-        const tokenAmount = parseEther(data.ethAmount);
+        // For ERC20 token, use parseUnits with token decimals
+        const tokenAmount = parseUnits(data.ethAmount, tokenDecimals!);
         
         // Step 1: Approve the vault contract to spend tokens
         const approveTx = await writeContractAsync({
@@ -257,7 +264,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 disabled={!currencySymbol}
               />
               <button
-                disabled={!currencySymbol}
+                disabled={!currencySymbol || (!isNativeCurrency && tokenDecimals === undefined)}
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>

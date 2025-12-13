@@ -1,12 +1,14 @@
 //import abi from "./abi/abi.json";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, usePublicClient } from "wagmi";
 //import { parseEther } from "viem";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
+import erc20abi from "./abi/erc20abi.json";
 //import { sepolia } from "viem/chains";
 import { parseEther, isAddress } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
+import { useEffect } from "react";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
   title: string;
@@ -37,12 +39,51 @@ const validateFundingToken = (fundingType: string) => (value?: `0x${string}`) =>
 
 const Create = () => {
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: citreaTestnet.id });
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+
+  // Watch fundingToken changes to fetch decimals
+  const fundingTokenAddress = watch("fundingToken");
+
+  useEffect(() => {
+    const fetchTokenDecimals = async () => {
+      if (!fundingTokenAddress || !isAddress(fundingTokenAddress) || fundingTokenAddress === "0x0000000000000000000000000000000000000000") {
+        setValue("fundingTokenDecimals", "");
+        return;
+      }
+
+      try {
+        if (!publicClient) {
+          console.warn("Public client not available");
+          return;
+        }
+
+        // Fetch token decimals using the contract read
+        const decimals = await publicClient.readContract({
+          address: fundingTokenAddress as `0x${string}`,
+          abi: erc20abi,
+          functionName: "decimals",
+        });
+
+        // Set the decimals value in the form
+        setValue("fundingTokenDecimals", String(decimals));
+      } catch (error) {
+        console.error("Failed to fetch token decimals:", error);
+        // Clear decimals on error
+        setValue("fundingTokenDecimals", "");
+      }
+    };
+
+    if (fundingTokenAddress) {
+      fetchTokenDecimals();
+    }
+  }, [fundingTokenAddress, publicClient, setValue]);
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
     const deadline = new Date(data.deadline);
@@ -118,24 +159,40 @@ const Create = () => {
         </label>
       </div>
       </div>
-      {watch("fundingType") === "ERC20" && (
-        <div className="pt-4">
-          <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
-          <input
-            id="fundingToken"
-            placeholder="Enter ERC20 token contract address (e.g., 0x123...abc)"
-            className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
-            {...register("fundingToken", {
-              validate: validateFundingToken(watch("fundingType")),
-            })}
-          />
-          {errors.fundingToken && (
-            <p className="text-red-500 text-sm mt-1">{errors.fundingToken.message}</p>
-          )}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
+        {/* ERC20 Funding Token Block - Inside Form */}
+        {watch("fundingType") === "ERC20" && (
+          <div className="pt-4 px-5">
+            <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
+            <input
+              id="fundingToken"
+              placeholder="Enter ERC20 token contract address (e.g., 0x123...abc)"
+              className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
+              {...register("fundingToken", {
+                validate: validateFundingToken(watch("fundingType")),
+              })}
+            />
+            {errors.fundingToken && (
+              <p className="text-red-500 text-sm mt-1">{errors.fundingToken.message}</p>
+            )}
+            
+            {/* Token Decimals Display */}
+            {watch("fundingTokenDecimals") && (
+              <div className="mt-3 p-3 bg-slate-800 rounded-md border border-slate-600">
+                <p className="text-sm text-slate-300">
+                  Token Decimals: <span className="text-white font-semibold">{watch("fundingTokenDecimals")}</span>
+                </p>
+                <input
+                  id="fundingTokenDecimals"
+                  type="hidden"
+                  {...register("fundingTokenDecimals")}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-5">
           <div>
             <label className={`text-sm text-white`}>Project Name</label>
