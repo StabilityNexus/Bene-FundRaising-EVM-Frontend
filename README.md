@@ -4,11 +4,9 @@
 <!-- Organization Logo -->
 <div align="center">
   <img alt="Stability Nexus" src="public/orglogo.svg" width="175">
-  &nbsp;
-  &nbsp;
+  &nbsp;&nbsp;&nbsp;
   <img src="public/plusSign.svg" width="30" height="175" />
-  &nbsp;
-  &nbsp;
+  &nbsp;&nbsp;&nbsp;
   <img src="public/Benelogo.svg" width="175" />
 </div>
 
@@ -21,39 +19,33 @@
 
 </div>
 
-<!-- Organization/Project Social Handles -->
+<!-- Social Links -->
 <p align="center">
-<!-- Telegram -->
 <a href="https://t.me/StabilityNexus">
-<img src="https://img.shields.io/badge/Telegram-black?style=flat&logo=telegram&logoColor=white&logoSize=auto&color=24A1DE" alt="Telegram Badge"/></a>
+<img src="https://img.shields.io/badge/Telegram-black?style=flat&logo=telegram&logoColor=white&color=24A1DE" /></a>
 &nbsp;&nbsp;
-<!-- X (formerly Twitter) -->
 <a href="https://x.com/StabilityNexus">
-<img src="https://img.shields.io/twitter/follow/StabilityNexus" alt="X (formerly Twitter) Badge"/></a>
+<img src="https://img.shields.io/twitter/follow/StabilityNexus" /></a>
 &nbsp;&nbsp;
-<!-- Discord -->
 <a href="https://discord.gg/YzDKeEfWtS">
-<img src="https://img.shields.io/discord/995968619034984528?style=flat&logo=discord&logoColor=white&logoSize=auto&label=Discord&labelColor=5865F2&color=57F287" alt="Discord Badge"/></a>
+<img src="https://img.shields.io/discord/995968619034984528?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=5865F2&color=57F287"/></a>
 &nbsp;&nbsp;
-<!-- Medium -->
 <a href="https://news.stability.nexus/">
-  <img src="https://img.shields.io/badge/Medium-black?style=flat&logo=medium&logoColor=black&logoSize=auto&color=white" alt="Medium Badge"></a>
+<img src="https://img.shields.io/badge/Medium-black?style=flat&logo=medium&color=white"/></a>
 &nbsp;&nbsp;
-<!-- LinkedIn -->
 <a href="https://linkedin.com/company/stability-nexus">
-  <img src="https://img.shields.io/badge/LinkedIn-black?style=flat&logo=LinkedIn&logoColor=white&logoSize=auto&color=0A66C2" alt="LinkedIn Badge"></a>
+<img src="https://img.shields.io/badge/LinkedIn-black?style=flat&logo=LinkedIn&color=0A66C2" /></a>
 &nbsp;&nbsp;
-<!-- Youtube -->
 <a href="https://www.youtube.com/@StabilityNexus">
-  <img src="https://img.shields.io/youtube/channel/subscribers/UCZOG4YhFQdlGaLugr_e5BKw?style=flat&logo=youtube&logoColor=white&logoSize=auto&labelColor=FF0000&color=FF0000" alt="Youtube Badge"></a>
+<img src="https://img.shields.io/youtube/channel/subscribers/UCZOG4YhFQdlGaLugr_e5BKw?style=flat&logo=youtube&labelColor=FF0000&color=FF0000"/></a>
 </p>
 
 &nbsp;
 
-<!-- Project core values and objective -->
+<!-- Project core values -->
 <p align="center">
   <strong>
- Bene allows project owners to raise funds for their projects and to reward funders with Proof-of-Funding tokens.
+    Bene allows project owners to raise funds for their projects and to reward funders with Proof-of-Funding tokens.
   </strong>
 </p>
 
@@ -61,31 +53,53 @@
 
 # Bene-Fundraising-EVM-Frontend
 
-This a frontend to interact with Bene's smart contracts at 
-[https://github.com/StabilityNexus/Bene-FundRaising-EVM-Contracts](https://github.com/StabilityNexus/Bene-FundRaising-EVM-Contracts)
+This repository contains the **frontend interface** for interacting with Bene’s EVM-based fundraising contracts.
 
-A live deployment of this frontend has been deployed to [https://bene-evm.stability.nexus/](https://bene-evm.stability.nexus/).
+### 👉 Smart Contract Repository:
+https://github.com/StabilityNexus/Bene-FundRaising-EVM-Contracts  
 
-## Running this Frontend Locally
+### 👉 Live Frontend Deployment:
+https://bene-evm.stability.nexus/
 
-### Clone the Repository
+This application enables a smooth, user-friendly experience for funders and project owners.
 
+---
+
+## 🚀 Running This Frontend Locally
+
+Follow the steps below to run Bene's frontend on your machine.
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/StabilityNexus/Bene-FundRaising-EVM-Frontend
 cd Bene-FundRaising-EVM-Frontend
 ```
 
-### Install Dependencies
-
+### 2. Install Dependencies
 ```bash
 npm install
-
 ```
 
-### Start the Development Server
-
+### 3. Start the Development Server
 ```bash
 npm run dev
 ```
 
-This will start a development server, and the frontend will be accessible at http://localhost:5173/.
+The frontend will be available at:
+
+👉 http://localhost:5173/
+
+---
+
+## 📬 Support & Community
+
+If you have questions, want to contribute, or need help:
+
+- Discord: https://discord.gg/YzDKeEfWtS  
+- Documentation: https://docs.stability.nexus/  
+
+We welcome improvements and contributions!
+
+---
+
+© 2025 The Stable Order
