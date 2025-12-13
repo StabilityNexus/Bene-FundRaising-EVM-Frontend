@@ -172,10 +172,10 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
               type="text"
               value={manualAddress}
               onChange={handleManualInputChange}
-              onBlur={() => {
+              onBlur={(e) => {
                 // Trigger validation on blur
                 if (register?.onBlur) {
-                  register.onBlur();
+                  register.onBlur(e);
                 }
               }}
               placeholder={placeholder}
