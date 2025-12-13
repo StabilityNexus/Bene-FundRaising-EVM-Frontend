@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { parseEther } from "viem";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
+import erc20abi from "./abi/erc20abi.json";
 import { useAccount } from "wagmi";
 //import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
@@ -22,6 +23,43 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
 
   const account = useAccount();
   const nativecurrency = account.chain?.nativeCurrency.name;
+
+  // Fetch the vault's funding token address
+  const { data: fundingToken } = useReadContract({
+    abi: vaultabi,
+    address: address as `0x${string}`,
+    functionName: "fundingToken",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!address,
+    },
+  }) as { data: `0x${string}` | undefined };
+
+  // Fetch ERC20 token symbol if a funding token is set
+  const { data: tokenSymbol } = useReadContract({
+    abi: erc20abi,
+    address: fundingToken,
+    functionName: "symbol",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!fundingToken && fundingToken !== "0x0000000000000000000000000000000000000000",
+    },
+  }) as { data: string | undefined };
+
+  // Fetch ERC20 token decimals if a funding token is set
+  const { data: tokenDecimals } = useReadContract({
+    abi: erc20abi,
+    address: fundingToken,
+    functionName: "decimals",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!fundingToken && fundingToken !== "0x0000000000000000000000000000000000000000",
+    },
+  }) as { data: number | undefined };
+
+  // Determine if using native currency or ERC20 token
+  const isNativeCurrency = !fundingToken || fundingToken === "0x0000000000000000000000000000000000000000";
+  const currencySymbol = isNativeCurrency ? nativecurrency : tokenSymbol;
 
   const tabs = [
     "Fund Project",
@@ -46,16 +84,47 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   } = useForm<Inputs>();
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
     try {
-      const tx1 = await writeContractAsync({
-        abi: vaultabi,
-        address: address as `0x${string}`,
-        functionName: "purchaseTokens",
-        value: parseEther(data.ethAmount),
-        chainId: citreaTestnet.id,
-      });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      if (isNativeCurrency) {
+        // For native currency, use msg.value
+        const tx1 = await writeContractAsync({
+          abi: vaultabi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          value: parseEther(data.ethAmount),
+          chainId: citreaTestnet.id,
+        });
+        // Wait for approximately 6 seconds for 3 block confirmations
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+        console.log("1st Transaction submitted:", tx1);
+      } else {
+        // For ERC20 token, need to approve first
+        const tokenAmount = parseEther(data.ethAmount);
+        
+        // Step 1: Approve the vault contract to spend tokens
+        const approveTx = await writeContractAsync({
+          abi: erc20abi,
+          address: fundingToken,
+          functionName: "approve",
+          args: [address as `0x${string}`, tokenAmount],
+          chainId: citreaTestnet.id,
+        });
+        console.log("Approval transaction submitted:", approveTx);
+        
+        // Wait for approval to be confirmed
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+        
+        // Step 2: Call purchaseTokens with transferFrom
+        const tx1 = await writeContractAsync({
+          abi: vaultabi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          args: [tokenAmount],
+          chainId: citreaTestnet.id,
+        });
+        // Wait for approximately 6 seconds for 3 block confirmations
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+        console.log("Purchase transaction submitted:", tx1);
+      }
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -181,21 +250,21 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 step="any"
                 {...register("ethAmount", { required: true })}
                 placeholder={
-                  nativecurrency
-                    ? `Enter Amount to donate in ${nativecurrency}`
+                  currencySymbol
+                    ? `Enter Amount to donate in ${currencySymbol}`
                     : "Connect Wallet to proceed"
                 }
-                disabled={!nativecurrency}
+                disabled={!currencySymbol}
               />
               <button
-                disabled={!nativecurrency}
+                disabled={!currencySymbol}
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {nativecurrency
-                    ? `${isSubmitting ? "Processing..." : `Send ${nativecurrency}`}`
+                  {currencySymbol
+                    ? `${isSubmitting ? "Processing..." : `Send ${currencySymbol}`}`
                     : "Connect Wallet"}
                 </span>
               </button>
@@ -210,13 +279,13 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 </p>
                 <button
                   onClick={handleRefund}
-                  disabled={!nativecurrency}
+                  disabled={!account.address}
                   className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                   <span className="text-white">
-                    {nativecurrency
+                    {account.address
                       ? `${isSubmitting ? "Processing..." : `Refund`}`
                       : "Connect Wallet"}
                   </span>
@@ -230,13 +299,13 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <p className="">Redeem your vouchers for CAT</p>
                 <button
                   onClick={handleRedeem}
-                  disabled={!nativecurrency}
+                  disabled={!account.address}
                   className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                   <span className="text-white">
-                    {nativecurrency
+                    {account.address
                       ? `${isSubmitting ? "Processing..." : `Redeem`}`
                       : "Connect Wallet"}
                   </span>

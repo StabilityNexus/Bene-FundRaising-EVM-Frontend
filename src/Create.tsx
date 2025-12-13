@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
 //import { sepolia } from "viem/chains";
-import { parseEther } from "viem";
+import { parseEther, isAddress } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
@@ -20,7 +20,19 @@ type Inputs = {
   ptaAmount: string;
   rate: string;
   developerPercentage: string;
-  fundingToken?: `0x${string}`; // Add fundingToken for ERC20 vaults
+  fundingToken?: `0x${string}`;
+  fundingTokenDecimals?: string;
+};
+
+// Custom validator for funding token address
+const validateFundingToken = (fundingType: string) => (value?: `0x${string}`) => {
+  if (fundingType !== "ERC20") return true; // Only validate for ERC20 mode
+  if (!value) return "Funding token address is required for ERC20 mode";
+  if (!isAddress(value)) return "Invalid Ethereum address format";
+  if (value === "0x0000000000000000000000000000000000000000") {
+    return "Cannot use zero address for funding token";
+  }
+  return true;
 };
 
 const Create = () => {
@@ -79,6 +91,8 @@ const Create = () => {
   }
 
   return (
+
+
     <div className="mx-auto max-w-7xl p-5">
       <div className="py-3 flex flex-col gap-2">
         <h1 className="text-2xl text-white">Create new Funding Vault</h1>
@@ -104,17 +118,21 @@ const Create = () => {
         </label>
       </div>
       </div>
-      {watch("fundingType")==="ERC20" &&(
+      {watch("fundingType") === "ERC20" && (
         <div className="pt-4">
-        <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
-        <input
-          id="fundingToken"
-          placeholder="Enter ERC20 token address"
-          className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
-          {...register("fundingToken", { required: watch("fundingType") === "ERC20" })}
-        />
-      </div>
-
+          <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
+          <input
+            id="fundingToken"
+            placeholder="Enter ERC20 token contract address (e.g., 0x123...abc)"
+            className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
+            {...register("fundingToken", {
+              validate: validateFundingToken(watch("fundingType")),
+            })}
+          />
+          {errors.fundingToken && (
+            <p className="text-red-500 text-sm mt-1">{errors.fundingToken.message}</p>
+          )}
+        </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
@@ -244,10 +262,12 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-white`}>Minimum ETH Target</label>
+            <label className={`text-sm text-white`}>
+              Minimum {watch("fundingType") === "ERC20" ? "Token" : "ETH"} Target
+            </label>
             <input
               id="minEth"
-              placeholder="Specify the minimum amount of ETH required (e.g., 10 ETH)"
+              placeholder={`Specify the minimum amount of ${watch("fundingType") === "ERC20" ? "tokens" : "ETH"} required (e.g., 10)`}
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("minEth", { required: true })}
             />
@@ -306,11 +326,13 @@ const Create = () => {
           /> */}
 
           <div>
-            <label className={`text-sm text-white`}>Exchange Rate</label>
+            <label className={`text-sm text-white`}>
+              Exchange Rate
+            </label>
             <input
               id="rate"
               type="number"
-              placeholder="Specify the exchange rate (e.g., 1 token = 0.01 ETH)"
+              placeholder={watch("fundingType") === "ERC20" ? "e.g., 100 (100 proof tokens per 1 funding token)" : "e.g., 0.01 (1 proof token = 0.01 ETH)"}
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("rate", { required: true })}
             />
@@ -334,7 +356,10 @@ const Create = () => {
               type="date"
               placeholder="Select the project deadline in mm/dd/yyyy format (e.g., 12/31/2024)"
               className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
-              {...register("deadline", { required: true })}
+              {...register("deadline", { 
+                required: "Deadline is required",
+                valueAsDate: true 
+              })}
             />
           </div>
         </div>
@@ -352,6 +377,7 @@ const Create = () => {
         </button>
       </form>
     </div>
+    
   );
-};
+}
 export default Create;
