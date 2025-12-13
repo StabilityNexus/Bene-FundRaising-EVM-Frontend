@@ -151,14 +151,14 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     }
   };
   return (
-    <div className=" mb-5 space-y-6 bg-slate-900 px-10 py-10 rounded-md border  border-slate-950 text-white">
+    <div className="mb-5 space-y-6 bg-slate-900 px-4 sm:px-6 md:px-10 py-6 sm:py-8 md:py-10 rounded-md border border-slate-950 text-white">
       <div>
-        <h1 className="text-lg font-bold text-white">Vault Actions</h1>
-        <div className="flex space-x-4 border-b pt-5">
+        <h1 className="text-base sm:text-lg font-bold text-white">Vault Actions</h1>
+        <div className="flex flex-wrap gap-2 sm:gap-4 border-b pt-3 sm:pt-5 overflow-x-auto">
           {visibleTabs.map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-2 ${
+              className={`px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === tab
                   ? "border-t border-purple-400 text-purple-400"
                   : "text-white"
@@ -176,7 +176,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 Fund the project and receive Proof-of-Funding tokens
               </p>
               <input
-                className="input h-[34px]  text-[14px] text-white/60 w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
+                className="input h-[34px] text-[14px] text-white/60 w-full sm:w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out mb-2 sm:mb-0"
                 type="number"
                 step="any"
                 {...register("ethAmount", { required: true })}
@@ -189,7 +189,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               />
               <button
                 disabled={!nativecurrency}
-                className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+                className="flex h-[34px] sm:h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
@@ -211,7 +211,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <button
                   onClick={handleRefund}
                   disabled={!nativecurrency}
-                  className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+                  className="flex h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
@@ -231,7 +231,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <button
                   onClick={handleRedeem}
                   disabled={!nativecurrency}
-                  className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+                  className="flex h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
@@ -249,7 +249,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               <p className="">Withdraw Funds</p>
               <button
                 onClick={handleWithdraw}
-                className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+                className="flex h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
@@ -263,7 +263,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
             <form onSubmit={handleSubmit2(onSubmitForm2)}>
               <p className="pb-5">Add more Proof-of-Funding Tokens</p>
               <input
-                className="input h-[34px]  text-[14px] text-white/60 w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
+                className="input h-[34px] text-[14px] text-white/60 w-full sm:w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out mb-2 sm:mb-0"
                 type="number"
                 step="any"
                 {...register2("ethAmount", { required: true })}
@@ -274,7 +274,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 }
                 disabled={!nativecurrency}
               />
-              <button className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3">
+              <button className="flex h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base">
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
@@ -287,7 +287,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
             <form onSubmit={handleSubmit3(onSubmitForm3)}>
               <p className="pb-5">Withdraw Proof-of-Funding Tokens</p>
               <input
-                className="input h-[34px]  text-[14px] text-white/60 w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out"
+                className="input h-[34px] text-[14px] text-white/60 w-full sm:w-1/3 bg-slate-950 text-[#f4f4f5] px-3 py-2 rounded border border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 focus:ring-offset-[#09090b] transition-all duration-150 ease-in-out mb-2 sm:mb-0"
                 type="number"
                 step="any"
                 {...register3("ethAmount", { required: true })}
@@ -298,7 +298,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 }
                 disabled={!nativecurrency}
               />
-              <button className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3">
+              <button className="flex h-[34px] overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600 mt-3 text-sm sm:text-base">
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">

@@ -51,15 +51,15 @@ const Home = () => {
   };
 
   return (
-    <div id="projects" className="px-4 xl:px-28 lg:px-20 sm:px-8 ">
-      <h1 className="text-3xl pt-16 font-bold text-white">
+    <div id="projects" className="px-2 sm:px-4 xl:px-28 lg:px-20 md:px-8">
+      <h1 className="text-2xl sm:text-3xl pt-8 sm:pt-16 font-bold text-white">
         Projects Raising Funds
       </h1>
-      <p className="text-slate-200 pt-3 pb-4">
+      <p className="text-slate-200 pt-2 sm:pt-3 pb-3 sm:pb-4 text-sm sm:text-base">
         Each Funding Vault represents a funding project.
       </p>
 
-      <div className="md:grid grid-cols-3 gap-6 py-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 py-4">
         {!result.isFetched &&
           Array.from({ length: 3 }, (_, index) => (
             <div key={index}>
@@ -88,15 +88,15 @@ const Home = () => {
               }}
             >
               <h1
-                className={`text-2xl font-bold ${index % 3 === 0 ? "text-[#5490ff]" : index % 3 === 1 ? "text-[#FFa500]" : "text-[#5490ff]"}`}
+                className={`text-xl sm:text-2xl font-bold ${index % 3 === 0 ? "text-[#5490ff]" : index % 3 === 1 ? "text-[#FFa500]" : "text-[#5490ff]"}`}
               >
                 {vault.title}
               </h1>
-              <p className="text-sm my-4 line-clamp-3 hover:line-clamp-none">
+              <p className="text-xs sm:text-sm my-3 sm:my-4 line-clamp-3 hover:line-clamp-none">
                 {vault.description}
               </p>
-              <div className="flex flex-row justify-between py-4">
-                <h1 className="text-base  ">
+              <div className="flex flex-row justify-between py-3 sm:py-4">
+                <h1 className="text-sm sm:text-base">
                   Time Left:{" "}
                   <Countdown
                     targetTimestamp={Number(vault.deadline) * 1000}
@@ -105,15 +105,9 @@ const Home = () => {
                 </h1>
               </div>
               <div className="">
-                {/* <button
-                  className="min-w-full py-2 bg-slate-100 text-black  hover:text-white  rounded-md hover:border-2  hover:border-purple-600 hover:bg-slate-950"
-                  onClick={() => handleNavigate(vault.vaultAddress)}
-                >
-                  View Details
-                </button> */}
                 <button
                   onClick={() => handleNavigate(vault.vaultAddress)}
-                  className={`min-w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 ${
+                  className={`w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 text-sm sm:text-base ${
                     index % 3 === 0
                       ? "border-[#005aff]/70 hover:border-[#005aff]"
                       : index % 3 === 1
@@ -122,7 +116,6 @@ const Home = () => {
                   }`}
                 >
                   <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
-
                   <span className="text-white">View Details</span>
                 </button>
               </div>
@@ -132,8 +125,8 @@ const Home = () => {
       </div>
       {end && start && end - start > 10 && (
         <a href="" target="_blank" rel="noopener noreferrer">
-          <div className="flex flex-auto align-center justify-center ">
-            <button className=" text-white font-semibold rounded-md py-2 px-5 bg-purple-600 hover:bg-purple-700 ">
+          <div className="flex flex-auto align-center justify-center mt-4">
+            <button className="w-full sm:w-auto text-white font-semibold rounded-md py-2 px-5 bg-purple-600 hover:bg-purple-700 text-sm sm:text-base">
               More Projects
             </button>
           </div>
