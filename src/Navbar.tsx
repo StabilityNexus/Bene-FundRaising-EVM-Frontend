@@ -10,13 +10,13 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="py-5 bg-slate-950 flex flex-row justify-between align-middle flex-wrap px-4">
-      <div className="flex flex-row gap-6">
+    <div className="py-3 sm:py-5 bg-slate-950 flex flex-row justify-between align-middle flex-wrap px-2 sm:px-4">
+      <div className="flex flex-row gap-2 sm:gap-6">
         <Link to={"/"} className="flex items-center">
-          <img src="/Benelogo.svg" alt="" className="w-8 h-8 flex items mt-[1px]"/>
-          <span className=" text-2xl px-1  font-bold text-white">Bene</span>
+          <img src="/Benelogo.svg" alt="" className="w-6 h-6 sm:w-8 sm:h-8 flex items mt-[1px]"/>
+          <span className="text-xl sm:text-2xl px-1 font-bold text-white">Bene</span>
         </Link>
-        <div className="w-80 hidden md:block">
+        <div className="w-40 sm:w-60 md:w-80 hidden md:block">
           <label className="mb-2 text-sm font-medium sr-only bg-slate-950 text-white">
             Search
           </label>
@@ -49,8 +49,9 @@ const Navbar = () => {
         </div>
       </div>
       <button
-        className="text-white text-2xl xl:hidden"
+        className="text-white text-xl sm:text-2xl xl:hidden p-2"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Toggle menu"
       >
         {isOpen ? "✖️" : "☰"}
       </button>
@@ -58,28 +59,22 @@ const Navbar = () => {
       <div
         className={`${
           isOpen ? "block" : "hidden"
-        } xl:flex flex flex-col xl:flex-row xl:justify-items-center w-full xl:w-auto gap-4 mt-4 xl:mt-0`}
+        } xl:flex flex flex-col xl:flex-row xl:justify-items-center w-full xl:w-auto gap-3 sm:gap-4 mt-4 xl:mt-0`}
       >
-        {/* <button
-          // onClick={() => scrollToSection("skills")}
-          className="text-white text-lg sm:text-xl hover:bg-purple-800 px-5 rounded-sm shadow-md "
-        >
-          Skills
-        </button> */}
-
         {Account.address ? (
           <button
             onClick={() => {
               if (Account.address) navigate("/create");
             }}
-            className="text-white bg-zinc-800 font-bold text-sm h-10 hover:bg-zinc-900 px-3 rounded-lg shadow-md "
+            className="text-white bg-zinc-800 font-bold text-xs sm:text-sm h-9 sm:h-10 hover:bg-zinc-900 px-2 sm:px-3 rounded-lg shadow-md w-full sm:w-auto"
           >
-            Raise Funds for a New Project
+            <span className="hidden sm:inline">Raise Funds for a New Project</span>
+            <span className="sm:hidden">Create Project</span>
           </button>
         ) : (
           <div></div>
         )}
-        <div>
+        <div className="w-full sm:w-auto">
           <ConnectButton
             accountStatus={{
               smallScreen: "avatar",
