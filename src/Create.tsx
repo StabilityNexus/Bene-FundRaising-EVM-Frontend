@@ -6,7 +6,7 @@ import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
 import erc20abi from "./abi/erc20abi.json";
 //import { sepolia } from "viem/chains";
-import { parseEther, isAddress } from "viem";
+import { parseEther, parseUnits, isAddress } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
 import { useEffect } from "react";
 type Inputs = {
@@ -86,9 +86,34 @@ const Create = () => {
   }, [fundingTokenAddress, publicClient, setValue]);
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
+    
+    // Validate that decimals are present for ERC20 mode
+    if (data.fundingType === "ERC20") {
+      if (!data.fundingTokenDecimals) {
+        console.error("Token decimals not loaded for ERC20 mode");
+        alert("Token decimals could not be loaded. Please check the token address and try again.");
+        return;
+      }
+    }
+
     const deadline = new Date(data.deadline);
     const timestamp = Math.floor(deadline.getTime() / 1000);
+    
     try {
+      // Parse minEth based on funding type
+      let minEthParsed;
+      try {
+        if (data.fundingType === "ERC20") {
+          minEthParsed = parseUnits(data.minEth, Number(data.fundingTokenDecimals!));
+        } else {
+          minEthParsed = parseEther(data.minEth);
+        }
+      } catch (parseError) {
+        console.error("Failed to parse minimum amount:", parseError);
+        alert("Invalid amount format. Please ensure the amount is a valid number.");
+        return;
+      }
+
       const tx1 = await writeContractAsync({
         abi: abi,
         address: data.pta,
@@ -109,7 +134,7 @@ const Create = () => {
         args: [
           data.pta,
           parseEther(data.ptaAmount),
-          parseEther(data.minEth),
+          minEthParsed,
           timestamp,
           data.rate,
           data.withdrawAddress,

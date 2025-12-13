@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { parseEther, parseUnits } from "viem";
-import { useWriteContract, useReadContract } from "wagmi";
+import { useWriteContract, useReadContract, usePublicClient } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
 import erc20abi from "./abi/erc20abi.json";
 import { useAccount } from "wagmi";
@@ -18,14 +18,15 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
 }) => {
   const { address } = useParams<{ address: `0x${string}` }>();
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: citreaTestnet.id });
   //const vaultDetails = response?.data as VaultDetailsType;
   const [activeTab, setActiveTab] = useState("Fund Project");
 
   const account = useAccount();
-  const nativecurrency = account.chain?.nativeCurrency.name;
+  const nativecurrency = account.chain?.nativeCurrency.symbol;
 
   // Fetch the vault's funding token address
-  const { data: fundingToken } = useReadContract({
+  const { data: fundingToken, isLoading: fundingTokenLoading } = useReadContract({
     abi: vaultabi,
     address: address as `0x${string}`,
     functionName: "fundingToken",
@@ -33,7 +34,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     query: {
       enabled: !!address,
     },
-  }) as { data: `0x${string}` | undefined };
+  }) as { data: `0x${string}` | undefined; isLoading: boolean };
 
   // Fetch ERC20 token symbol if a funding token is set
   const { data: tokenSymbol } = useReadContract({
@@ -58,7 +59,11 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   }) as { data: number | undefined };
 
   // Determine if using native currency or ERC20 token
-  const isNativeCurrency = !fundingToken || fundingToken === "0x0000000000000000000000000000000000000000";
+  // Only consider native currency AFTER fundingToken has loaded and is zero address
+  const isNativeCurrency =
+    !fundingTokenLoading && (!fundingToken || fundingToken === "0x0000000000000000000000000000000000000000");
+  
+  // currencySymbol is only valid when all data has loaded
   const currencySymbol = isNativeCurrency ? nativecurrency : tokenSymbol;
 
   const tabs = [
@@ -84,53 +89,71 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   } = useForm<Inputs>();
   
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
-    // Guard: For ERC20 tokens, ensure decimals are loaded
-    if (!isNativeCurrency && tokenDecimals === undefined) {
-      console.error("Token decimals not loaded yet");
+    // Guard: Ensure fundingToken has loaded and we have required data
+    if (fundingTokenLoading || !fundingToken) {
+      console.error("Funding token not loaded yet");
+      return;
+    }
+
+    // Guard: For ERC20 tokens, ensure decimals and symbol are loaded
+    if (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined)) {
+      console.error("Token data not loaded yet");
+      return;
+    }
+
+    if (!publicClient) {
+      console.error("Public client not available");
       return;
     }
 
     try {
       if (isNativeCurrency) {
         // For native currency, use msg.value
-        const tx1 = await writeContractAsync({
+        const txHash = await writeContractAsync({
           abi: vaultabi,
           address: address as `0x${string}`,
           functionName: "purchaseTokens",
           value: parseEther(data.ethAmount),
           chainId: citreaTestnet.id,
         });
-        // Wait for approximately 6 seconds for 3 block confirmations
-        await new Promise((resolve) => setTimeout(resolve, 6000));
-        console.log("1st Transaction submitted:", tx1);
+        // Wait for transaction receipt
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash as `0x${string}`,
+        });
+        console.log("Native currency transaction confirmed:", receipt);
       } else {
         // For ERC20 token, use parseUnits with token decimals
         const tokenAmount = parseUnits(data.ethAmount, tokenDecimals!);
         
         // Step 1: Approve the vault contract to spend tokens
-        const approveTx = await writeContractAsync({
+        const approveTxHash = await writeContractAsync({
           abi: erc20abi,
           address: fundingToken,
           functionName: "approve",
           args: [address as `0x${string}`, tokenAmount],
           chainId: citreaTestnet.id,
         });
-        console.log("Approval transaction submitted:", approveTx);
+        console.log("Approval transaction submitted:", approveTxHash);
         
         // Wait for approval to be confirmed
-        await new Promise((resolve) => setTimeout(resolve, 6000));
+        const approveReceipt = await publicClient.waitForTransactionReceipt({
+          hash: approveTxHash as `0x${string}`,
+        });
+        console.log("Approval transaction confirmed:", approveReceipt);
         
         // Step 2: Call purchaseTokens with transferFrom
-        const tx1 = await writeContractAsync({
+        const purchaseTxHash = await writeContractAsync({
           abi: vaultabi,
           address: address as `0x${string}`,
           functionName: "purchaseTokens",
           args: [tokenAmount],
           chainId: citreaTestnet.id,
         });
-        // Wait for approximately 6 seconds for 3 block confirmations
-        await new Promise((resolve) => setTimeout(resolve, 6000));
-        console.log("Purchase transaction submitted:", tx1);
+        // Wait for purchase transaction to be confirmed
+        const purchaseReceipt = await publicClient.waitForTransactionReceipt({
+          hash: purchaseTxHash as `0x${string}`,
+        });
+        console.log("Purchase transaction confirmed:", purchaseReceipt);
       }
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -143,17 +166,36 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     formState: { isSubmitting: isSubmitting2 },
   } = useForm<Inputs>();
   const onSubmitForm2: SubmitHandler<Inputs> = async (data) => {
+    // Guard: Ensure fundingToken has loaded and we have required data
+    if (fundingTokenLoading || !fundingToken) {
+      console.error("Funding token not loaded yet");
+      return;
+    }
+
+    // Guard: For ERC20 tokens, ensure decimals and symbol are loaded
+    if (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined)) {
+      console.error("Token data not loaded yet");
+      return;
+    }
+
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "addTokens",
         args: [parseEther(data.ethAmount)],
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Add tokens transaction confirmed:", receipt);
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -257,22 +299,30 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 step="any"
                 {...register("ethAmount", { required: true })}
                 placeholder={
-                  currencySymbol
-                    ? `Enter Amount to donate in ${currencySymbol}`
-                    : "Connect Wallet to proceed"
+                  fundingTokenLoading
+                    ? "Loading vault details..."
+                    : currencySymbol
+                      ? `Enter Amount to donate in ${currencySymbol}`
+                      : "Connect Wallet to proceed"
                 }
-                disabled={!currencySymbol}
+                disabled={fundingTokenLoading || !currencySymbol}
               />
               <button
-                disabled={!currencySymbol || (!isNativeCurrency && tokenDecimals === undefined)}
+                disabled={
+                  fundingTokenLoading ||
+                  !currencySymbol ||
+                  (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined))
+                }
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {currencySymbol
-                    ? `${isSubmitting ? "Processing..." : `Send ${currencySymbol}`}`
-                    : "Connect Wallet"}
+                  {fundingTokenLoading
+                    ? "Loading..."
+                    : currencySymbol
+                      ? `${isSubmitting ? "Processing..." : `Send ${currencySymbol}`}`
+                      : "Connect Wallet"}
                 </span>
               </button>
             </form>
@@ -344,17 +394,30 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 step="any"
                 {...register2("ethAmount", { required: true })}
                 placeholder={
-                  nativecurrency
-                    ? `Enter Amount of Tokens to add`
-                    : "Connect Wallet to proceed"
+                  fundingTokenLoading
+                    ? "Loading vault details..."
+                    : nativecurrency
+                      ? `Enter Amount of Tokens to add`
+                      : "Connect Wallet to proceed"
                 }
-                disabled={!nativecurrency}
+                disabled={fundingTokenLoading || !nativecurrency}
               />
-              <button className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3">
+              <button
+                disabled={
+                  fundingTokenLoading ||
+                  !nativecurrency ||
+                  (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined))
+                }
+                className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+              >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {isSubmitting2 ? "Processing..." : `Add PTKs`}
+                  {fundingTokenLoading
+                    ? "Loading..."
+                    : isSubmitting2
+                      ? "Processing..."
+                      : `Add PTKs`}
                 </span>
               </button>
             </form>
