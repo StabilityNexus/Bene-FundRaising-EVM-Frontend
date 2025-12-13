@@ -11,6 +11,7 @@ import Microlink from "@microlink/react";
 import VaultActions from "./VaultActions.tsx";
 import Countdown from "./Countdown.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
+import ShareBtn from "./ShareBtn"; // <--- Already imported correctly
 
 const Details = () => {
   // Placeholder example values for the funding vault
@@ -72,7 +73,7 @@ const Details = () => {
                   <div className="flex items-center space-x-3">
                     <div className="text-blue-500 text-2xl">
                       {/* Icon placeholder */}
-                      {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                      {/* <svg className="w-6 h-6" fill="currentColor"></svg> */}
                     </div>
                     <div className="w-full my-12">
                       <div className="h-6 bg-slate-800 rounded my-2 mx-2 w-2/3 animate-pulse"></div>
@@ -90,7 +91,7 @@ const Details = () => {
                   <div className="mb-4 rounded-lg p-6 shadow-md border bg-slate-900 border-slate-950">
                     <div className="flex items-center space-x-3">
                       <div className="text-red-500 text-2xl  my-7">
-                        {/* <svg className="w-6 h-6" fill="currentColor"><!-- icon --></svg> */}
+                        {/* <svg className="w-6 h-6" fill="currentColor"></svg> */}
                       </div>
                       <div>
                         <div className="h-4 bg-slate-800 rounded my-2 mx-2 w-96 animate-pulse"></div>
@@ -252,9 +253,13 @@ const Details = () => {
                 </div>
                 <div>
                   {balanceOfVault.data && symbol && vaultDetails && (
-                    <VaultActions
-                      withdrawalAddress={vaultDetails?.withdrawlAddress}
-                    />
+                    <>
+                      <VaultActions
+                        withdrawalAddress={vaultDetails?.withdrawlAddress}
+                      />
+                      {/* --- SHARE BUTTON ADDED HERE --- */}
+                      <ShareBtn />
+                    </>
                   )}
                 </div>
               </div>
@@ -275,10 +280,6 @@ const Details = () => {
           )}
         </div>
       </div>
-
-      {/* {balanceOfVault.data && VaultCAT && vaultDetails && (
-        <VaultActions withdrawalAddress={vaultDetails?.withdrawlAddress} />
-      )} */}
     </div>
   );
 };
