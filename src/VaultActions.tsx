@@ -166,15 +166,9 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     formState: { isSubmitting: isSubmitting2 },
   } = useForm<Inputs>();
   const onSubmitForm2: SubmitHandler<Inputs> = async (data) => {
-    // Guard: Ensure fundingToken has loaded and we have required data
-    if (fundingTokenLoading || !fundingToken) {
-      console.error("Funding token not loaded yet");
-      return;
-    }
-
-    // Guard: For ERC20 tokens, ensure decimals and symbol are loaded
-    if (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined)) {
-      console.error("Token data not loaded yet");
+    // Guard: Ensure wallet is connected
+    if (!account.address) {
+      console.error("Wallet not connected");
       return;
     }
 
@@ -393,31 +387,17 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 type="number"
                 step="any"
                 {...register2("ethAmount", { required: true })}
-                placeholder={
-                  fundingTokenLoading
-                    ? "Loading vault details..."
-                    : nativecurrency
-                      ? `Enter Amount of Tokens to add`
-                      : "Connect Wallet to proceed"
-                }
-                disabled={fundingTokenLoading || !nativecurrency}
+                placeholder="Enter Amount of Tokens to add"
+                disabled={!account.address}
               />
               <button
-                disabled={
-                  fundingTokenLoading ||
-                  !nativecurrency ||
-                  (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined))
-                }
+                disabled={!account.address}
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {fundingTokenLoading
-                    ? "Loading..."
-                    : isSubmitting2
-                      ? "Processing..."
-                      : `Add PTKs`}
+                  {isSubmitting2 ? "Processing..." : `Add PTKs`}
                 </span>
               </button>
             </form>
