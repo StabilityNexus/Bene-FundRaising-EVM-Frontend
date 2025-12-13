@@ -89,6 +89,18 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   } = useForm<Inputs>();
   
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
+    // Guard: Ensure wallet is connected
+    if (!account.address) {
+      console.error("Wallet not connected");
+      return;
+    }
+
+    // Guard: Ensure vault address is available from route params
+    if (!address) {
+      console.error("Vault address missing in route params");
+      return;
+    }
+
     // Guard: Ensure fundingToken has loaded and we have required data
     if (fundingTokenLoading || !fundingToken) {
       console.error("Funding token not loaded yet");
@@ -126,23 +138,22 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         const tokenAmount = parseUnits(data.ethAmount, tokenDecimals!);
         
         // Step 1: Approve the vault contract to spend tokens
-        const approveTxHash = await writeContractAsync({
+        const approveHash = await writeContractAsync({
           abi: erc20abi,
           address: fundingToken,
           functionName: "approve",
           args: [address as `0x${string}`, tokenAmount],
           chainId: citreaTestnet.id,
         });
-        console.log("Approval transaction submitted:", approveTxHash);
         
         // Wait for approval to be confirmed
         const approveReceipt = await publicClient.waitForTransactionReceipt({
-          hash: approveTxHash as `0x${string}`,
+          hash: approveHash as `0x${string}`,
         });
         console.log("Approval transaction confirmed:", approveReceipt);
         
         // Step 2: Call purchaseTokens with transferFrom
-        const purchaseTxHash = await writeContractAsync({
+        const purchaseHash = await writeContractAsync({
           abi: vaultabi,
           address: address as `0x${string}`,
           functionName: "purchaseTokens",
@@ -151,7 +162,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         });
         // Wait for purchase transaction to be confirmed
         const purchaseReceipt = await publicClient.waitForTransactionReceipt({
-          hash: purchaseTxHash as `0x${string}`,
+          hash: purchaseHash as `0x${string}`,
         });
         console.log("Purchase transaction confirmed:", purchaseReceipt);
       }
@@ -182,6 +193,9 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "addTokens",
+        // Note: addTokens expects participation token amount
+        // Currently using 18 decimals (standard ERC20)
+        // TODO: Fetch and use actual participation token decimals
         args: [parseEther(data.ethAmount)],
         chainId: citreaTestnet.id,
       });
@@ -200,66 +214,94 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     formState: { isSubmitting: isSubmitting3 },
   } = useForm<Inputs>();
   const onSubmitForm3: SubmitHandler<Inputs> = async (data) => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "withdrawUnsoldTokens",
         args: [parseEther(data.ethAmount)],
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Withdraw unsold tokens transaction confirmed:", receipt);
     } catch (error) {
       console.error("Transaction failed:", error);
     }
   };
 
   const handleWithdraw = async () => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "withdrawFunds",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Withdraw funds transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
 
   const handleRefund = async () => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "refundTokens",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Refund transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
   const handleRedeem = async () => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "redeem",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Redeem transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
   return (
@@ -303,6 +345,8 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               />
               <button
                 disabled={
+                  !account.address ||
+                  !address ||
                   fundingTokenLoading ||
                   !currencySymbol ||
                   (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined))
