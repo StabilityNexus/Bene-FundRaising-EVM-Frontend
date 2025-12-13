@@ -238,6 +238,11 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   };
 
   const handleWithdraw = async () => {
+    if (!account.address) {
+      console.error("Wallet not connected");
+      return;
+    }
+
     if (!publicClient) {
       console.error("Public client not available");
       return;
@@ -413,12 +418,15 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               <p className="">Withdraw Funds</p>
               <button
                 onClick={handleWithdraw}
+                disabled={!account.address}
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {isSubmitting ? "Processing..." : `Withdraw Funds`}
+                  {account.address
+                    ? `${isSubmitting ? "Processing..." : `Withdraw Funds`}`
+                    : "Connect Wallet"}
                 </span>
               </button>
             </div>
