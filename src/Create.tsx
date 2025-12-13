@@ -7,6 +7,7 @@ import abi from "./abi/abi.json";
 //import { sepolia } from "viem/chains";
 import { parseEther } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
+import TokenSelector from "./components/TokenSelector";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
   title: string;
@@ -29,6 +30,7 @@ const Create = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -79,9 +81,9 @@ const Create = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-5">
-      <div className="py-3 flex flex-col gap-2">
-        <h1 className="text-2xl text-white">Create new Funding Vault</h1>
+    <div className="mx-auto max-w-7xl p-2 sm:p-4 md:p-5">
+      <div className="py-2 sm:py-3 flex flex-col gap-2">
+        <h1 className="text-xl sm:text-2xl text-white">Create new Funding Vault</h1>
       </div>
       <div className="mt-4">
       <label className="text-lg text-white  font-medium ">Funding Type</label>
@@ -104,17 +106,20 @@ const Create = () => {
         </label>
       </div>
       </div>
-      {watch("fundingType")==="ERC20" &&(
+      {watch("fundingType") === "ERC20" && (
         <div className="pt-4">
-        <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
-        <input
-          id="fundingToken"
-          placeholder="Enter ERC20 token address"
-          className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
-          {...register("fundingToken", { required: watch("fundingType") === "ERC20" })}
+          <TokenSelector
+            value={watch("fundingToken") || ""}
+            onChange={(address) => setValue("fundingToken", address as `0x${string}`)}
+            register={register("fundingToken", {
+              required: watch("fundingType") === "ERC20",
+            })}
+            error={errors.fundingToken?.message}
+            placeholder="Enter ERC20 token address or select from list"
+            label="ERC20 Funding Token Address"
+            required={watch("fundingType") === "ERC20"}
         />
       </div>
-
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
@@ -342,10 +347,9 @@ const Create = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-10 text-base font-bold flex overflow-hidden items-center  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-2 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600"
+          className="h-10 sm:h-11 text-sm sm:text-base font-bold flex overflow-hidden items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-3 sm:px-4 py-2 sm:max-w-52 whitespace-pre group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 border-purple-600/70 hover:border-purple-600"
         >
           <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
-
           <span className="text-white">
             {isSubmitting ? "Processing..." : `Create Vault`}
           </span>
