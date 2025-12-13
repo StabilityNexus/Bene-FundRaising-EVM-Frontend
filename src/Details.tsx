@@ -11,6 +11,7 @@ import Microlink from "@microlink/react";
 import VaultActions from "./VaultActions.tsx";
 import Countdown from "./Countdown.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
+import ShareButton from "./ShareButton.tsx";
 
 const Details = () => {
   // Placeholder example values for the funding vault
@@ -150,9 +151,19 @@ const Details = () => {
           )}
           {balanceOfVault.data && symbol && vaultDetails && (
             <div>
-              <h1 className="text-2xl font-bold text-white pb-6 ">
-                {vaultDetails.projectTitle}
-              </h1>
+              <div className="flex flex-row flex-wrap justify-between items-center pb-6">
+                <h1 className="text-2xl font-bold text-white">
+                  {vaultDetails.projectTitle}
+                </h1>
+                {vaultDetails.projectTitle && vaultDetails.projectDescription && (
+                  <ShareButton
+                    title={vaultDetails.projectTitle}
+                    description={vaultDetails.projectDescription}
+                    url={window.location.href}
+                    hashtags={["Fundraising", "Blockchain", "Web3"]}
+                  />
+                )}
+              </div>
               <div className="flex flex-row flex-wrap xl:flex-nowrap justify-around">
                 <div className="xl:w-1/2 w-full ">
                   <Microlink
