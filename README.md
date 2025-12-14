@@ -48,6 +48,8 @@
   <img src="https://img.shields.io/youtube/channel/subscribers/UCZOG4YhFQdlGaLugr_e5BKw?style=flat&logo=youtube&logoColor=white&logoSize=auto&labelColor=FF0000&color=FF0000" alt="Youtube Badge"></a>
 </p>
 
+
+
 &nbsp;
 
 <!-- Project core values and objective -->
@@ -65,6 +67,34 @@ This a frontend to interact with Bene's smart contracts at
 [https://github.com/StabilityNexus/Bene-FundRaising-EVM-Contracts](https://github.com/StabilityNexus/Bene-FundRaising-EVM-Contracts)
 
 A live deployment of this frontend has been deployed to [https://bene-evm.stability.nexus/](https://bene-evm.stability.nexus/).
+
+## 🔒 Decentralized Wallet Integration
+
+This project uses **fully decentralized wallet connections** without relying on WalletConnect/ReOwn SDKs. This design choice enhances the project's "unstoppability" and resilience by:
+
+- ❌ **No centralized projectId** required
+- ❌ **No usage limits** or rate limiting from external services
+- ❌ **No potential censorship** risk from third-party providers
+- ✅ **Direct wallet connections** via browser extensions
+- ✅ **Works offline** once connected
+
+### Supported Wallets
+
+- **Injected Wallets**: MetaMask, Brave Wallet, Trust Wallet, and any browser extension wallet
+- **Coinbase Wallet**: Direct SDK integration without WalletConnect
+
+### Supported Networks
+
+The application supports 20+ EVM chains including:
+- Citrea Testnet (primary)
+- Ethereum Mainnet & Sepolia
+- Polygon & Mumbai
+- Arbitrum & Sepolia
+- Optimism & Sepolia
+- Base & Sepolia
+- BSC & Testnet
+- Avalanche & Fuji
+- And more...
 
 ## Running this Frontend Locally
 
@@ -89,3 +119,4 @@ npm run dev
 ```
 
 This will start a development server, and the frontend will be accessible at http://localhost:5173/.
+

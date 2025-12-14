@@ -1,68 +1,64 @@
-import "@rainbow-me/rainbowkit/styles.css";
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-  darkTheme,
-  Chain,
-} from "@rainbow-me/rainbowkit";
+/**
+ * Bene Fundraising DApp - Decentralized Wallet Integration
+ * 
+ * This implementation removes dependency on WalletConnect/ReOwn SDKs,
+ * which posed decentralization risks including:
+ * - Centralization through required projectId
+ * - Usage limits and potential rate limiting
+ * - Potential censorship or service disruption
+ * 
+ * Instead, we use direct wallet connections:
+ * - Injected wallets (MetaMask, Brave, Trust Wallet, etc.)
+ * - Coinbase Wallet direct SDK
+ * 
+ * This enhances the project's "unstoppability" and resilience.
+ */
+
 import { WagmiProvider } from "wagmi";
-import * as chains from "wagmi/chains";
-import { citreaTestnet } from "./CitreaTestnet";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
+import { wagmiConfig } from "./config/wagmi";
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Create from "./Create";
 import Details from "./Details";
 
-const AllChains: readonly [Chain, ...Chain[]] = [
-  ...(Object.values(chains) as Chain[]),
-  citreaTestnet,
-] as unknown as readonly [Chain, ...Chain[]];
-
-export const config = getDefaultConfig({
-  appName: "My RainbowKit App",
-  projectId: "YOUR_PROJECT_ID",
-  chains: AllChains,
-  ssr: true, // If your d/Bene-FundRaising-EVM-Frontend/App uses server side rendering (SSR)
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Improve caching and reduce unnecessary refetches
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 2,
+    },
+  },
 });
-
-const queryClient = new QueryClient();
 
 export default function App() {
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          coolMode
-          initialChain={citreaTestnet}
-          theme={darkTheme({
-            accentColor: "#7b3fe4",
-            accentColorForeground: "white",
-            borderRadius: "medium",
-            fontStack: "system",
-            overlayBlur: "small",
-          })}
-        >
-          <div className="bg-slate-900 min-h-screen">
-            <Router>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/details/:address" element={<Details />} />
-              </Routes>
-            </Router>
-            <footer className="text-white text-center py-4 pt-20">
-              <div className="container mx-auto">
-                <p className="text-sm">
-                  &copy; {new Date().getFullYear()} Stability Nexus. All rights
-                  reserved.
-                </p>
-              </div>
-            </footer>
-          </div>
-        </RainbowKitProvider>
+        <div className="bg-slate-900 min-h-screen">
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/create" element={<Create />} />
+              <Route path="/details/:address" element={<Details />} />
+            </Routes>
+          </Router>
+          <footer className="text-white text-center py-4 pt-20">
+            <div className="container mx-auto">
+              <p className="text-sm">
+                &copy; {new Date().getFullYear()} Stability Nexus. All rights
+                reserved.
+              </p>
+              <p className="text-xs text-slate-500 mt-2">
+                🔒 Decentralized wallet connections - No external service dependencies
+              </p>
+            </div>
+          </footer>
+        </div>
       </QueryClientProvider>
     </WagmiProvider>
   );

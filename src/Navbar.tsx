@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectWallet } from "./components/ConnectWallet";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -80,7 +80,7 @@ const Navbar = () => {
           <div></div>
         )}
         <div>
-          <ConnectButton
+          <ConnectWallet
             accountStatus={{
               smallScreen: "avatar",
               largeScreen: "full",
