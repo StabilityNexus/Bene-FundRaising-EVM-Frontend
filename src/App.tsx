@@ -10,10 +10,13 @@ import * as chains from "wagmi/chains";
 import { citreaTestnet } from "./CitreaTestnet";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
+
+// --- Imports ---
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Create from "./Create";
 import Details from "./Details";
+import Disclaimer from "./Disclaimer"; // <--- NEW IMPORT
 
 const AllChains: readonly [Chain, ...Chain[]] = [
   ...(Object.values(chains) as Chain[]),
@@ -24,7 +27,7 @@ export const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "YOUR_PROJECT_ID",
   chains: AllChains,
-  ssr: true, // If your d/Bene-FundRaising-EVM-Frontend/App uses server side rendering (SSR)
+  ssr: true, 
 });
 
 const queryClient = new QueryClient();
@@ -45,6 +48,10 @@ export default function App() {
           })}
         >
           <div className="bg-slate-900 min-h-screen">
+            
+            {/* --- DISCLAIMER ADDED HERE --- */}
+            <Disclaimer />
+
             <Router>
               <Navbar />
               <Routes>
@@ -53,6 +60,7 @@ export default function App() {
                 <Route path="/details/:address" element={<Details />} />
               </Routes>
             </Router>
+
             <footer className="text-white text-center py-4 pt-20">
               <div className="container mx-auto">
                 <p className="text-sm">
