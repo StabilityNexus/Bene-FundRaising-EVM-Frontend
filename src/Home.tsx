@@ -6,6 +6,7 @@ import { useReadContract } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import Countdown from "./Countdown.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
+import ShareButton from "./ShareButton.tsx";
 const Home = () => {
   const [totalVaults, setTotalVaults] = useState<number>();
   const [start, setStart] = useState<number>();
@@ -87,11 +88,23 @@ const Home = () => {
                 backgroundImage: `url(${index % 3 === 0 ? "card-3.svg" : index % 3 === 1 ? "card-2.svg" : "card-3.svg"})`,
               }}
             >
-              <h1
-                className={`text-2xl font-bold ${index % 3 === 0 ? "text-[#5490ff]" : index % 3 === 1 ? "text-[#FFa500]" : "text-[#5490ff]"}`}
-              >
-                {vault.title}
-              </h1>
+              <div className="flex justify-between items-start mb-3">
+                <h1
+                  className={`text-2xl font-bold ${index % 3 === 0 ? "text-[#5490ff]" : index % 3 === 1 ? "text-[#FFa500]" : "text-[#5490ff]"}`}
+                >
+                  {vault.title}
+                </h1>
+                {vault.title && vault.description && vault.vaultAddress && (
+                  <ShareButton
+                    title={vault.title}
+                    description={vault.description}
+                    url={`${window.location.origin}/details/${vault.vaultAddress}`}
+                    hashtags={["Fundraising", "Blockchain", "Web3"]}
+                    iconOnly={true}
+                    buttonClassName="p-2 bg-slate-800/80 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200 backdrop-blur-sm"
+                  />
+                )}
+              </div>
               <p className="text-sm my-4 line-clamp-3 hover:line-clamp-none">
                 {vault.description}
               </p>
