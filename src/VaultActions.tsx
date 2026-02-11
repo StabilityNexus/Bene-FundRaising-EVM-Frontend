@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { parseEther } from "viem";
-import { useWriteContract } from "wagmi";
+import { parseEther, parseUnits } from "viem";
+import { useWriteContract, useReadContract, usePublicClient } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
+import erc20abi from "./abi/erc20abi.json";
 import { useAccount } from "wagmi";
 //import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
@@ -17,11 +18,53 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
 }) => {
   const { address } = useParams<{ address: `0x${string}` }>();
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: citreaTestnet.id });
   //const vaultDetails = response?.data as VaultDetailsType;
   const [activeTab, setActiveTab] = useState("Fund Project");
 
   const account = useAccount();
-  const nativecurrency = account.chain?.nativeCurrency.name;
+  const nativecurrency = account.chain?.nativeCurrency.symbol;
+
+  // Fetch the vault's funding token address
+  const { data: fundingToken, isLoading: fundingTokenLoading } = useReadContract({
+    abi: vaultabi,
+    address: address as `0x${string}`,
+    functionName: "fundingToken",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!address,
+    },
+  }) as { data: `0x${string}` | undefined; isLoading: boolean };
+
+  // Fetch ERC20 token symbol if a funding token is set
+  const { data: tokenSymbol } = useReadContract({
+    abi: erc20abi,
+    address: fundingToken,
+    functionName: "symbol",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!fundingToken && fundingToken !== "0x0000000000000000000000000000000000000000",
+    },
+  }) as { data: string | undefined };
+
+  // Fetch ERC20 token decimals if a funding token is set
+  const { data: tokenDecimals } = useReadContract({
+    abi: erc20abi,
+    address: fundingToken,
+    functionName: "decimals",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !!fundingToken && fundingToken !== "0x0000000000000000000000000000000000000000",
+    },
+  }) as { data: number | undefined };
+
+  // Determine if using native currency or ERC20 token
+  // Only consider native currency AFTER fundingToken has loaded and is zero address
+  const isNativeCurrency =
+    !fundingTokenLoading && (!fundingToken || fundingToken === "0x0000000000000000000000000000000000000000");
+  
+  // currencySymbol is only valid when all data has loaded
+  const currencySymbol = isNativeCurrency ? nativecurrency : tokenSymbol;
 
   const tabs = [
     "Fund Project",
@@ -44,18 +87,85 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     handleSubmit,
     formState: { isSubmitting },
   } = useForm<Inputs>();
+  
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
+    // Guard: Ensure wallet is connected
+    if (!account.address) {
+      console.error("Wallet not connected");
+      return;
+    }
+
+    // Guard: Ensure vault address is available from route params
+    if (!address) {
+      console.error("Vault address missing in route params");
+      return;
+    }
+
+    // Guard: Ensure fundingToken has loaded and we have required data
+    if (fundingTokenLoading || !fundingToken) {
+      console.error("Funding token not loaded yet");
+      return;
+    }
+
+    // Guard: For ERC20 tokens, ensure decimals and symbol are loaded
+    if (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined)) {
+      console.error("Token data not loaded yet");
+      return;
+    }
+
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
-        abi: vaultabi,
-        address: address as `0x${string}`,
-        functionName: "purchaseTokens",
-        value: parseEther(data.ethAmount),
-        chainId: citreaTestnet.id,
-      });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      if (isNativeCurrency) {
+        // For native currency, use msg.value
+        const txHash = await writeContractAsync({
+          abi: vaultabi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          value: parseEther(data.ethAmount),
+          chainId: citreaTestnet.id,
+        });
+        // Wait for transaction receipt
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash as `0x${string}`,
+        });
+        console.log("Native currency transaction confirmed:", receipt);
+      } else {
+        // For ERC20 token, use parseUnits with token decimals
+        const tokenAmount = parseUnits(data.ethAmount, tokenDecimals!);
+        
+        // Step 1: Approve the vault contract to spend tokens
+        const approveHash = await writeContractAsync({
+          abi: erc20abi,
+          address: fundingToken,
+          functionName: "approve",
+          args: [address as `0x${string}`, tokenAmount],
+          chainId: citreaTestnet.id,
+        });
+        
+        // Wait for approval to be confirmed
+        const approveReceipt = await publicClient.waitForTransactionReceipt({
+          hash: approveHash as `0x${string}`,
+        });
+        console.log("Approval transaction confirmed:", approveReceipt);
+        
+        // Step 2: Call purchaseTokens with transferFrom
+        const purchaseHash = await writeContractAsync({
+          abi: vaultabi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          args: [tokenAmount],
+          chainId: citreaTestnet.id,
+        });
+        // Wait for purchase transaction to be confirmed
+        const purchaseReceipt = await publicClient.waitForTransactionReceipt({
+          hash: purchaseHash as `0x${string}`,
+        });
+        console.log("Purchase transaction confirmed:", purchaseReceipt);
+      }
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -67,17 +177,33 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     formState: { isSubmitting: isSubmitting2 },
   } = useForm<Inputs>();
   const onSubmitForm2: SubmitHandler<Inputs> = async (data) => {
+    // Guard: Ensure wallet is connected
+    if (!account.address) {
+      console.error("Wallet not connected");
+      return;
+    }
+
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "addTokens",
+        // Note: addTokens expects participation token amount
+        // Currently using 18 decimals (standard ERC20)
+        // TODO: Fetch and use actual participation token decimals
         args: [parseEther(data.ethAmount)],
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Add tokens transaction confirmed:", receipt);
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -88,66 +214,99 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
     formState: { isSubmitting: isSubmitting3 },
   } = useForm<Inputs>();
   const onSubmitForm3: SubmitHandler<Inputs> = async (data) => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "withdrawUnsoldTokens",
         args: [parseEther(data.ethAmount)],
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Withdraw unsold tokens transaction confirmed:", receipt);
     } catch (error) {
       console.error("Transaction failed:", error);
     }
   };
 
   const handleWithdraw = async () => {
+    if (!account.address) {
+      console.error("Wallet not connected");
+      return;
+    }
+
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "withdrawFunds",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Withdraw funds transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
 
   const handleRefund = async () => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "refundTokens",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Refund transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
   const handleRedeem = async () => {
+    if (!publicClient) {
+      console.error("Public client not available");
+      return;
+    }
+
     try {
-      const tx1 = await writeContractAsync({
+      const txHash = await writeContractAsync({
         abi: vaultabi,
         address: address as `0x${string}`,
         functionName: "redeem",
         chainId: citreaTestnet.id,
       });
-      // Wait for approximately 6 seconds for 3 block confirmations
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash as `0x${string}`,
+      });
+      console.log("Redeem transaction confirmed:", receipt);
     } catch (error) {
-      console.error("Contract call failed:", error);
+      console.error("Transaction failed:", error);
     }
   };
   return (
@@ -181,22 +340,32 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 step="any"
                 {...register("ethAmount", { required: true })}
                 placeholder={
-                  nativecurrency
-                    ? `Enter Amount to donate in ${nativecurrency}`
-                    : "Connect Wallet to proceed"
+                  fundingTokenLoading
+                    ? "Loading vault details..."
+                    : currencySymbol
+                      ? `Enter Amount to donate in ${currencySymbol}`
+                      : "Connect Wallet to proceed"
                 }
-                disabled={!nativecurrency}
+                disabled={fundingTokenLoading || !currencySymbol}
               />
               <button
-                disabled={!nativecurrency}
+                disabled={
+                  !account.address ||
+                  !address ||
+                  fundingTokenLoading ||
+                  !currencySymbol ||
+                  (!isNativeCurrency && (tokenDecimals === undefined || tokenSymbol === undefined))
+                }
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {nativecurrency
-                    ? `${isSubmitting ? "Processing..." : `Send ${nativecurrency}`}`
-                    : "Connect Wallet"}
+                  {fundingTokenLoading
+                    ? "Loading..."
+                    : currencySymbol
+                      ? `${isSubmitting ? "Processing..." : `Send ${currencySymbol}`}`
+                      : "Connect Wallet"}
                 </span>
               </button>
             </form>
@@ -210,13 +379,13 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 </p>
                 <button
                   onClick={handleRefund}
-                  disabled={!nativecurrency}
+                  disabled={!account.address}
                   className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                   <span className="text-white">
-                    {nativecurrency
+                    {account.address
                       ? `${isSubmitting ? "Processing..." : `Refund`}`
                       : "Connect Wallet"}
                   </span>
@@ -230,13 +399,13 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 <p className="">Redeem your vouchers for CAT</p>
                 <button
                   onClick={handleRedeem}
-                  disabled={!nativecurrency}
+                  disabled={!account.address}
                   className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
                 >
                   <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                   <span className="text-white">
-                    {nativecurrency
+                    {account.address
                       ? `${isSubmitting ? "Processing..." : `Redeem`}`
                       : "Connect Wallet"}
                   </span>
@@ -249,12 +418,15 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
               <p className="">Withdraw Funds</p>
               <button
                 onClick={handleWithdraw}
+                disabled={!account.address}
                 className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
               >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">
-                  {isSubmitting ? "Processing..." : `Withdraw Funds`}
+                  {account.address
+                    ? `${isSubmitting ? "Processing..." : `Withdraw Funds`}`
+                    : "Connect Wallet"}
                 </span>
               </button>
             </div>
@@ -267,14 +439,13 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 type="number"
                 step="any"
                 {...register2("ethAmount", { required: true })}
-                placeholder={
-                  nativecurrency
-                    ? `Enter Amount of Tokens to add`
-                    : "Connect Wallet to proceed"
-                }
-                disabled={!nativecurrency}
+                placeholder="Enter Amount of Tokens to add"
+                disabled={!account.address}
               />
-              <button className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3">
+              <button
+                disabled={!account.address}
+                className="flex h-[34px] min-w-60 overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out  border-2 border-purple-600/70 hover:border-purple-600 mt-3"
+              >
                 <span className="absolute right-0 h-32 w-8 translate-x-12 rotate-12 bg-white opacity-20 transition-all duration-1000 ease-out group-hover:-translate-x-40"></span>
 
                 <span className="text-white">

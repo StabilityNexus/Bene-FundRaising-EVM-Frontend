@@ -1,12 +1,14 @@
 //import abi from "./abi/abi.json";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, usePublicClient } from "wagmi";
 //import { parseEther } from "viem";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
+import erc20abi from "./abi/erc20abi.json";
 //import { sepolia } from "viem/chains";
-import { parseEther } from "viem";
+import { parseEther, parseUnits, isAddress } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
+import { useEffect } from "react";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
   title: string;
@@ -20,22 +22,98 @@ type Inputs = {
   ptaAmount: string;
   rate: string;
   developerPercentage: string;
-  fundingToken?: `0x${string}`; // Add fundingToken for ERC20 vaults
+  fundingToken?: `0x${string}`;
+  fundingTokenDecimals?: string;
+};
+
+// Custom validator for funding token address
+const validateFundingToken = (fundingType: string) => (value?: `0x${string}`) => {
+  if (fundingType !== "ERC20") return true; // Only validate for ERC20 mode
+  if (!value) return "Funding token address is required for ERC20 mode";
+  if (!isAddress(value)) return "Invalid Ethereum address format";
+  if (value === "0x0000000000000000000000000000000000000000") {
+    return "Cannot use zero address for funding token";
+  }
+  return true;
 };
 
 const Create = () => {
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: citreaTestnet.id });
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+
+  // Watch fundingToken changes to fetch decimals
+  const fundingTokenAddress = watch("fundingToken");
+
+  useEffect(() => {
+    const fetchTokenDecimals = async () => {
+      if (!fundingTokenAddress || !isAddress(fundingTokenAddress) || fundingTokenAddress === "0x0000000000000000000000000000000000000000") {
+        setValue("fundingTokenDecimals", "");
+        return;
+      }
+
+      try {
+        if (!publicClient) {
+          console.warn("Public client not available");
+          return;
+        }
+
+        // Fetch token decimals using the contract read
+        const decimals = await publicClient.readContract({
+          address: fundingTokenAddress as `0x${string}`,
+          abi: erc20abi,
+          functionName: "decimals",
+        });
+
+        // Set the decimals value in the form
+        setValue("fundingTokenDecimals", String(decimals));
+      } catch (error) {
+        console.error("Failed to fetch token decimals:", error);
+        // Clear decimals on error
+        setValue("fundingTokenDecimals", "");
+      }
+    };
+
+    if (fundingTokenAddress) {
+      fetchTokenDecimals();
+    }
+  }, [fundingTokenAddress, publicClient, setValue]);
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
+    
+    // Validate that decimals are present for ERC20 mode
+    if (data.fundingType === "ERC20") {
+      if (!data.fundingTokenDecimals) {
+        console.error("Token decimals not loaded for ERC20 mode");
+        alert("Token decimals could not be loaded. Please check the token address and try again.");
+        return;
+      }
+    }
+
     const deadline = new Date(data.deadline);
     const timestamp = Math.floor(deadline.getTime() / 1000);
+    
     try {
+      // Parse minEth based on funding type
+      let minEthParsed;
+      try {
+        if (data.fundingType === "ERC20") {
+          minEthParsed = parseUnits(data.minEth, Number(data.fundingTokenDecimals!));
+        } else {
+          minEthParsed = parseEther(data.minEth);
+        }
+      } catch (parseError) {
+        console.error("Failed to parse minimum amount:", parseError);
+        alert("Invalid amount format. Please ensure the amount is a valid number.");
+        return;
+      }
+
       const tx1 = await writeContractAsync({
         abi: abi,
         address: data.pta,
@@ -56,7 +134,7 @@ const Create = () => {
         args: [
           data.pta,
           parseEther(data.ptaAmount),
-          parseEther(data.minEth),
+          minEthParsed,
           timestamp,
           data.rate,
           data.withdrawAddress,
@@ -79,6 +157,8 @@ const Create = () => {
   }
 
   return (
+
+
     <div className="mx-auto max-w-7xl p-5">
       <div className="py-3 flex flex-col gap-2">
         <h1 className="text-2xl text-white">Create new Funding Vault</h1>
@@ -104,20 +184,40 @@ const Create = () => {
         </label>
       </div>
       </div>
-      {watch("fundingType")==="ERC20" &&(
-        <div className="pt-4">
-        <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
-        <input
-          id="fundingToken"
-          placeholder="Enter ERC20 token address"
-          className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
-          {...register("fundingToken", { required: watch("fundingType") === "ERC20" })}
-        />
-      </div>
-
-      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
+        {/* ERC20 Funding Token Block - Inside Form */}
+        {watch("fundingType") === "ERC20" && (
+          <div className="pt-4 px-5">
+            <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
+            <input
+              id="fundingToken"
+              placeholder="Enter ERC20 token contract address (e.g., 0x123...abc)"
+              className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
+              {...register("fundingToken", {
+                validate: validateFundingToken(watch("fundingType")),
+              })}
+            />
+            {errors.fundingToken && (
+              <p className="text-red-500 text-sm mt-1">{errors.fundingToken.message}</p>
+            )}
+            
+            {/* Token Decimals Display */}
+            {watch("fundingTokenDecimals") && (
+              <div className="mt-3 p-3 bg-slate-800 rounded-md border border-slate-600">
+                <p className="text-sm text-slate-300">
+                  Token Decimals: <span className="text-white font-semibold">{watch("fundingTokenDecimals")}</span>
+                </p>
+                <input
+                  id="fundingTokenDecimals"
+                  type="hidden"
+                  {...register("fundingTokenDecimals")}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-5">
           <div>
             <label className={`text-sm text-white`}>Project Name</label>
@@ -244,10 +344,12 @@ const Create = () => {
             validation={{}}
           /> */}
           <div>
-            <label className={`text-sm text-white`}>Minimum ETH Target</label>
+            <label className={`text-sm text-white`}>
+              Minimum {watch("fundingType") === "ERC20" ? "Token" : "ETH"} Target
+            </label>
             <input
               id="minEth"
-              placeholder="Specify the minimum amount of ETH required (e.g., 10 ETH)"
+              placeholder={`Specify the minimum amount of ${watch("fundingType") === "ERC20" ? "tokens" : "ETH"} required (e.g., 10)`}
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("minEth", { required: true })}
             />
@@ -306,11 +408,13 @@ const Create = () => {
           /> */}
 
           <div>
-            <label className={`text-sm text-white`}>Exchange Rate</label>
+            <label className={`text-sm text-white`}>
+              Exchange Rate
+            </label>
             <input
               id="rate"
               type="number"
-              placeholder="Specify the exchange rate (e.g., 1 token = 0.01 ETH)"
+              placeholder={watch("fundingType") === "ERC20" ? "e.g., 100 (100 proof tokens per 1 funding token)" : "e.g., 0.01 (1 proof token = 0.01 ETH)"}
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("rate", { required: true })}
             />
@@ -334,7 +438,10 @@ const Create = () => {
               type="date"
               placeholder="Select the project deadline in mm/dd/yyyy format (e.g., 12/31/2024)"
               className="bg-transparent text-white p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
-              {...register("deadline", { required: true })}
+              {...register("deadline", { 
+                required: "Deadline is required",
+                valueAsDate: true 
+              })}
             />
           </div>
         </div>
@@ -352,6 +459,7 @@ const Create = () => {
         </button>
       </form>
     </div>
+    
   );
-};
+}
 export default Create;
