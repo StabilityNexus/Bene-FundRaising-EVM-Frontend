@@ -1,11 +1,11 @@
 //import abi from "./abi/abi.json";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 //import { parseEther } from "viem";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
 //import { sepolia } from "viem/chains";
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
@@ -31,6 +31,18 @@ const Create = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+  const fundingType = watch("fundingType");
+  const fundingToken = watch("fundingToken");
+  const fundingTokenDecimals = useReadContract({
+    abi,
+    address: fundingToken,
+    functionName: "decimals",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: fundingType === "ERC20" && !!fundingToken,
+    },
+  });
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
     const deadline = new Date(data.deadline);
@@ -49,6 +61,10 @@ const Create = () => {
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
       console.log("1st Transaction submitted:", tx1);
+      const minFundingAmount =
+        data.fundingType === "ETH"
+          ? parseEther(data.minEth)
+          : parseUnits(data.minEth, fundingTokenDecimals.data as number);
       const tx2 = await writeContractAsync({
         abi: factoryabi,
         address: "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
@@ -61,7 +77,7 @@ const Create = () => {
                 ? "0x0000000000000000000000000000000000000000"
                 : data.fundingToken!,
             proofOfFundingTokenAmount: parseEther(data.ptaAmount),
-            minFundingAmount: parseEther(data.minEth),
+            minFundingAmount: minFundingAmount,
             timestamp,
             exchangeRate: BigInt(data.rate),
             withdrawalAddress: data.withdrawAddress as `0x${string}`,
@@ -318,7 +334,10 @@ const Create = () => {
             <input
               id="rate"
               type="number"
-              placeholder="Specify the exchange rate (e.g., 1 token = 0.01 ETH)"
+              min={1}
+              max={100}
+              step={1}
+              placeholder="Specify the exchange rate (e.g., 10 tokens = 1 ETH)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("rate", { required: true })}
             />
