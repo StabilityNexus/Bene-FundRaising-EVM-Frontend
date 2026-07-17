@@ -1,5 +1,6 @@
 //import abi from "./abi/abi.json";
 import { useWriteContract } from "wagmi";
+//import { parseEther } from "viem";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
@@ -40,7 +41,7 @@ const Create = () => {
         address: data.pta,
         functionName: "approve",
         args: [
-          "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+          "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
           parseEther(data.ptaAmount),
         ],
         chainId: citreaTestnet.id,
@@ -50,23 +51,26 @@ const Create = () => {
       console.log("1st Transaction submitted:", tx1);
       const tx2 = await writeContractAsync({
         abi: factoryabi,
-        address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+        address: "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
         functionName: "deployFundingVault",
         args: [
-          data.pta,
-          parseEther(data.ptaAmount),
-          parseEther(data.minEth),
-          timestamp,
-          data.rate,
-          data.withdrawAddress,
-          data.fundingType === "ETH"
-            ? "0x0000000000000000000000000000000000000000"
-            : data.fundingToken, // Handle native ETH
-          "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
-          "4",
-          data.url,
-          data.title,
-          data.description,
+          {
+            proofOfFundingToken: data.pta,
+            fundingToken:
+              data.fundingType === "ETH"
+                ? "0x0000000000000000000000000000000000000000"
+                : data.fundingToken!,
+            proofOfFundingTokenAmount: parseEther(data.ptaAmount),
+            minFundingAmount: parseEther(data.minEth),
+            timestamp,
+            exchangeRate: BigInt(data.rate),
+            withdrawalAddress: data.withdrawAddress as `0x${string}`,
+            developerFeeAddress: "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
+            developerFeePercentage: 4,
+            projectURL: data.url,
+            projectTitle: data.title,
+            projectDescription: data.description,
+          },
         ],
         chainId: citreaTestnet.id,
       });

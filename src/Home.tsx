@@ -14,7 +14,7 @@ const Home = () => {
   // First contract call
   const response = useReadContract({
     abi: factoryabi,
-    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+    address: "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
     functionName: "getTotalNumberOfFundingVaults",
     chainId: citreaTestnet.id,
   });
@@ -32,7 +32,7 @@ const Home = () => {
   // Second contract call, triggered only when `totalVaults`, `start`, and `end` are defined
   const result = useReadContract({
     abi: factoryabi,
-    address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+    address: "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
     functionName: "getVaults",
     args: start && end ? [start, end] : undefined, // Only provide args when start and end are set
     chainId: citreaTestnet.id,
@@ -44,9 +44,10 @@ const Home = () => {
 
   const vaults = result?.data as VaultArrayType;
 
-  const handleNavigate = (address: string) => {
-    // Navigate to the details page with the vault address as a URL parameter
-    navigate(`details/${address}`);
+  const handleNavigate = (address: string, isERC20: boolean) => {
+    navigate(`details/${address}`, {
+      state: { isERC20 },
+    });
   };
 
   return (
@@ -104,14 +105,10 @@ const Home = () => {
                 </h1>
               </div>
               <div className="">
-                {/* <button
-                  className="min-w-full py-2 bg-slate-100 text-black  hover:text-white  rounded-md hover:border-2  hover:border-purple-600 hover:bg-slate-950"
-                  onClick={() => handleNavigate(vault.vaultAddress)}
-                >
-                  View Details
-                </button> */}
                 <button
-                  onClick={() => handleNavigate(vault.vaultAddress)}
+                  onClick={() =>
+                    handleNavigate(vault.vaultAddress, vault.isERC20)
+                  }
                   className={`min-w-full flex overflow-hidden items-center font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-slate-950 text-white shadow hover:bg-black/90 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-300 ease-out border-2 ${
                     index % 3 === 0
                       ? "border-[#005aff]/70 hover:border-[#005aff]"

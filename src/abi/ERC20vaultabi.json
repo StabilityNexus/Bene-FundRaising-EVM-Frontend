@@ -165,21 +165,6 @@
   },
   {
     "inputs": [],
-    "name": "EthTransferFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EthTransferToDeveloperFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EthTransferToWithdrawalFailed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "MinFundingAmountNotReached",
     "type": "error"
   },
@@ -424,6 +409,19 @@
   },
   {
     "inputs": [],
+    "name": "fundingToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getVault",
     "outputs": [
       {
@@ -436,6 +434,11 @@
           {
             "internalType": "address",
             "name": "proofOfFundingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "fundingToken",
             "type": "address"
           },
           {
@@ -474,7 +477,7 @@
             "type": "string"
           }
         ],
-        "internalType": "struct FundingVault.Vault",
+        "internalType": "struct FundingVaultERC20.Vault",
         "name": "",
         "type": "tuple"
       }
@@ -574,10 +577,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fundingAmount",
+        "type": "uint256"
+      }
+    ],
     "name": "purchaseTokens",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

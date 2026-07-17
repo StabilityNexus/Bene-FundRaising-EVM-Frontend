@@ -3,16 +3,18 @@ export interface Vault {
   title: string;
   description: string;
   deadline: bigint;
+  isERC20: boolean;
 }
 
 export type VaultArrayType = Vault[];
 
 export interface VaultDetailsType {
-  withdrawlAddress: string;
-  participationToken: `0x${string}`;
-  participationTokenAmount: string;
+  withdrawalAddress: string;
+  proofOfFundingToken: `0x${string}`;
+  fundingToken: `0x${string}`;
+  proofOfFundingTokenAmount: string;
   minFundingAmount: string;
-  timeStamp: string;
+  timestamp: string;
   exchangeRate: string;
   projectURL: string;
   projectTitle: string;
