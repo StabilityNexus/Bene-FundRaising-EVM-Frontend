@@ -1,7 +1,6 @@
 import vaultabi from "./abi/vaultabi.json";
 import abi from "./abi/abi.json";
 import { useReadContract } from "wagmi";
-//import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
 import { VaultDetailsType } from "./ContractResponseTypes.ts";
 import { formatEther } from "viem";

@@ -4,7 +4,6 @@ import { parseEther } from "viem";
 import { useWriteContract } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
 import { useAccount } from "wagmi";
-//import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
 import { citreaTestnet } from "./CitreaTestnet";
 

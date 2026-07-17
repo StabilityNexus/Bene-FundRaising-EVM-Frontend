@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { VaultArrayType } from "./ContractResponseTypes.ts";
 import factoryabi from "./abi/factoryabi.json";
 import { useReadContract } from "wagmi";
-//import { sepolia } from "viem/chains";
 import { useNavigate } from "react-router-dom";
 import Countdown from "./Countdown.tsx";
 import { citreaTestnet } from "./CitreaTestnet.ts";
