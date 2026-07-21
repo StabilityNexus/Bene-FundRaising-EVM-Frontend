@@ -6,6 +6,16 @@
   },
   {
     "inputs": [],
+    "name": "ExchangeRateCanNotBeZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidFeePercentage",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidIndex",
     "type": "error"
   },
@@ -71,59 +81,71 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_participationToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_participationTokenAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_minFundingAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_timeStamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_exchangeRate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_withdrawalAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_developerFeeAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_developerFeePercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_projectURL",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_projectTitle",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_projectDescription",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "proofOfFundingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "fundingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "proofOfFundingTokenAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minFundingAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "exchangeRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "withdrawalAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "developerFeeAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "developerFeePercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "projectURL",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "projectTitle",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "projectDescription",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct VaultTypes.VaultConfig",
+        "name": "config",
+        "type": "tuple"
       }
     ],
     "name": "deployFundingVault",
@@ -186,6 +208,11 @@
             "internalType": "uint256",
             "name": "deadline",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isERC20",
+            "type": "bool"
           }
         ],
         "internalType": "struct FundingVaultFactory.Vault[]",
@@ -225,6 +252,11 @@
         "internalType": "uint256",
         "name": "deadline",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isERC20",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

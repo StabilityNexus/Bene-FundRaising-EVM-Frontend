@@ -1,11 +1,11 @@
 //import abi from "./abi/abi.json";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 //import { parseEther } from "viem";
 import { useForm, SubmitHandler } from "react-hook-form";
 import factoryabi from "./abi/factoryabi.json";
 import abi from "./abi/abi.json";
 //import { sepolia } from "viem/chains";
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 import { citreaTestnet } from "./CitreaTestnet";
 type Inputs = {
   fundingType: "ETH" | "ERC20";
@@ -31,6 +31,18 @@ const Create = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+  const fundingType = watch("fundingType");
+  const fundingToken = watch("fundingToken");
+  const fundingTokenDecimals = useReadContract({
+    abi,
+    address: fundingToken,
+    functionName: "decimals",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: fundingType === "ERC20" && !!fundingToken,
+    },
+  });
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
     const deadline = new Date(data.deadline);
@@ -41,7 +53,7 @@ const Create = () => {
         address: data.pta,
         functionName: "approve",
         args: [
-          "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+          "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
           parseEther(data.ptaAmount),
         ],
         chainId: citreaTestnet.id,
@@ -49,23 +61,32 @@ const Create = () => {
       // Wait for approximately 6 seconds for 3 block confirmations
       await new Promise((resolve) => setTimeout(resolve, 6000));
       console.log("1st Transaction submitted:", tx1);
+      const minFundingAmount =
+        data.fundingType === "ETH"
+          ? parseEther(data.minEth)
+          : parseUnits(data.minEth, fundingTokenDecimals.data as number);
       const tx2 = await writeContractAsync({
         abi: factoryabi,
-        address: "0x7be12F651D421Edf31fd6488244aC20e8cEb5987",
+        address: "0xa8a5CDAC32b8B19dBcFBb22950BF00e0c7b77217",
         functionName: "deployFundingVault",
         args: [
-          data.pta,
-          parseEther(data.ptaAmount),
-          parseEther(data.minEth),
-          timestamp,
-          data.rate,
-          data.withdrawAddress,
-          data.fundingType === "ETH" ? "0x0000000000000000000000000000000000000000" : data.fundingToken, // Handle native ETH
-          "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
-          "4",
-          data.url,
-          data.title,
-          data.description,
+          {
+            proofOfFundingToken: data.pta,
+            fundingToken:
+              data.fundingType === "ETH"
+                ? "0x0000000000000000000000000000000000000000"
+                : data.fundingToken!,
+            proofOfFundingTokenAmount: parseEther(data.ptaAmount),
+            minFundingAmount: minFundingAmount,
+            timestamp,
+            exchangeRate: BigInt(data.rate),
+            withdrawalAddress: data.withdrawAddress as `0x${string}`,
+            developerFeeAddress: "0x1bAab7d90eceB510f9424a41A86D9eA5ADce8717",
+            developerFeePercentage: 4,
+            projectURL: data.url,
+            projectTitle: data.title,
+            projectDescription: data.description,
+          },
         ],
         chainId: citreaTestnet.id,
       });
@@ -84,37 +105,40 @@ const Create = () => {
         <h1 className="text-2xl text-white">Create new Funding Vault</h1>
       </div>
       <div className="mt-4">
-      <label className="text-lg text-white  font-medium ">Funding Type</label>
-      <div className="flex gap-4 text-white mt-2">
-        <label className="flex items-center gap-2 ">
-          <input
-            type="radio"
-            value="ETH"
-            {...register("fundingType", { required: true })}
-          />
-          Native ETH
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            value="ERC20"
-            {...register("fundingType", { required: true })}
-          />
-          ERC20 Token
-        </label>
+        <label className="text-lg text-white  font-medium ">Funding Type</label>
+        <div className="flex gap-4 text-white mt-2">
+          <label className="flex items-center gap-2 ">
+            <input
+              type="radio"
+              value="ETH"
+              {...register("fundingType", { required: true })}
+            />
+            Native ETH
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              value="ERC20"
+              {...register("fundingType", { required: true })}
+            />
+            ERC20 Token
+          </label>
+        </div>
       </div>
-      </div>
-      {watch("fundingType")==="ERC20" &&(
+      {watch("fundingType") === "ERC20" && (
         <div className="pt-4">
-        <label className={`text-sm text-white`}>ERC20 Funding Token Address</label>
-        <input
-          id="fundingToken"
-          placeholder="Enter ERC20 token address"
-          className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
-          {...register("fundingToken", { required: watch("fundingType") === "ERC20" })}
-        />
-      </div>
-
+          <label className={`text-sm text-white`}>
+            ERC20 Funding Token Address
+          </label>
+          <input
+            id="fundingToken"
+            placeholder="Enter ERC20 token address"
+            className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md text-white"
+            {...register("fundingToken", {
+              required: watch("fundingType") === "ERC20",
+            })}
+          />
+        </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="text-white">
@@ -310,7 +334,10 @@ const Create = () => {
             <input
               id="rate"
               type="number"
-              placeholder="Specify the exchange rate (e.g., 1 token = 0.01 ETH)"
+              min={1}
+              max={100}
+              step={1}
+              placeholder="Specify the exchange rate (e.g., 10 tokens = 1 ETH)"
               className="bg-transparent p-2 text-sm w-full outline-none border border-slate-600 rounded-md"
               {...register("rate", { required: true })}
             />

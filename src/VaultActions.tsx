@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { parseEther } from "viem";
+import { parseEther, parseUnits } from "viem";
 import { useWriteContract } from "wagmi";
+import { useReadContract } from "wagmi";
 import vaultabi from "./abi/vaultabi.json";
+import ERC20vaultabi from "./abi/ERC20vaultabi.json";
+import abi from "./abi/vaultabi.json";
 import { useAccount } from "wagmi";
-//import { sepolia } from "viem/chains";
 import { useParams } from "react-router-dom";
 import { citreaTestnet } from "./CitreaTestnet";
 
@@ -12,11 +14,21 @@ type Inputs = {
   ethAmount: string;
 };
 
-const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
-  withdrawalAddress,
-}) => {
+const VaultActions: React.FC<{
+  withdrawalAddress?: string;
+  fundingToken?: `0x${string}`;
+  fundingSymbol?: string;
+}> = ({ withdrawalAddress, fundingToken, fundingSymbol }) => {
+  const isNativeVault =
+    !fundingToken ||
+    fundingToken === "0x0000000000000000000000000000000000000000";
+
+  const vaultAbi = isNativeVault ? vaultabi : ERC20vaultabi;
+
   const { address } = useParams<{ address: `0x${string}` }>();
   const { writeContractAsync } = useWriteContract();
+
+  const { writeContractAsync: writeTokenContract } = useWriteContract();
   //const vaultDetails = response?.data as VaultDetailsType;
   const [activeTab, setActiveTab] = useState("Fund Project");
 
@@ -39,6 +51,29 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
             tab === "Fund Project" || tab === "Refund" || tab === "Redeem",
         );
 
+  const { data: fundingTokenDecimals } = useReadContract({
+    abi: abi,
+    address: fundingToken,
+    functionName: "decimals",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !isNativeVault,
+    },
+  });
+
+  const { data: allowance } = useReadContract({
+    abi: abi,
+    address: fundingToken,
+    functionName: "allowance",
+    args: [
+      account.address as `0x${string}`,
+      address as `0x${string}`, // vault contract address
+    ],
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: !isNativeVault && !!account.address,
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -46,16 +81,54 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   } = useForm<Inputs>();
   const onSubmitForm1: SubmitHandler<Inputs> = async (data) => {
     try {
-      const tx1 = await writeContractAsync({
-        abi: vaultabi,
-        address: address as `0x${string}`,
-        functionName: "purchaseTokens",
-        value: parseEther(data.ethAmount),
-        chainId: citreaTestnet.id,
-      });
-      // Wait for approximately 6 seconds for 3 block confirmations
+      if (!isNativeVault && fundingTokenDecimals === undefined) {
+        throw new Error("Funding token decimals not loaded");
+      }
+
+      const fundingAmount = isNativeVault
+        ? parseEther(data.ethAmount)
+        : parseUnits(data.ethAmount, Number(fundingTokenDecimals));
+
+      let tx1;
+
+      if (isNativeVault) {
+        tx1 = await writeContractAsync({
+          abi: vaultAbi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          value: fundingAmount,
+          chainId: citreaTestnet.id,
+        });
+      } else {
+        const currentAllowance = (allowance as bigint | undefined) ?? 0n;
+
+        if (currentAllowance < fundingAmount) {
+          await writeTokenContract({
+            abi: abi,
+            address: fundingToken,
+            functionName: "approve",
+            args: [
+              address as `0x${string}`, // vault contract
+              fundingAmount,
+            ],
+            chainId: citreaTestnet.id,
+          });
+
+          // Wait for the approval transaction
+          await new Promise((resolve) => setTimeout(resolve, 6000));
+        }
+
+        tx1 = await writeContractAsync({
+          abi: vaultAbi,
+          address: address as `0x${string}`,
+          functionName: "purchaseTokens",
+          args: [fundingAmount],
+          chainId: citreaTestnet.id,
+        }); // ERC20 flow will go here
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 6000));
-      console.log("1st Transaction submitted:", tx1);
+      console.log("Transaction submitted:", tx1);
     } catch (error) {
       console.error("Transaction failed:", error);
     }
@@ -69,7 +142,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const onSubmitForm2: SubmitHandler<Inputs> = async (data) => {
     try {
       const tx1 = await writeContractAsync({
-        abi: vaultabi,
+        abi: vaultAbi,
         address: address as `0x${string}`,
         functionName: "addTokens",
         args: [parseEther(data.ethAmount)],
@@ -90,7 +163,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const onSubmitForm3: SubmitHandler<Inputs> = async (data) => {
     try {
       const tx1 = await writeContractAsync({
-        abi: vaultabi,
+        abi: vaultAbi,
         address: address as `0x${string}`,
         functionName: "withdrawUnsoldTokens",
         args: [parseEther(data.ethAmount)],
@@ -107,7 +180,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const handleWithdraw = async () => {
     try {
       const tx1 = await writeContractAsync({
-        abi: vaultabi,
+        abi: vaultAbi,
         address: address as `0x${string}`,
         functionName: "withdrawFunds",
         chainId: citreaTestnet.id,
@@ -123,7 +196,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const handleRefund = async () => {
     try {
       const tx1 = await writeContractAsync({
-        abi: vaultabi,
+        abi: vaultAbi,
         address: address as `0x${string}`,
         functionName: "refundTokens",
         chainId: citreaTestnet.id,
@@ -138,7 +211,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
   const handleRedeem = async () => {
     try {
       const tx1 = await writeContractAsync({
-        abi: vaultabi,
+        abi: vaultAbi,
         address: address as `0x${string}`,
         functionName: "redeem",
         chainId: citreaTestnet.id,
@@ -150,6 +223,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
       console.error("Contract call failed:", error);
     }
   };
+
   return (
     <div className=" mb-5 space-y-6 bg-slate-900 px-10 py-10 rounded-md border  border-slate-950 text-white">
       <div>
@@ -182,7 +256,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 {...register("ethAmount", { required: true })}
                 placeholder={
                   nativecurrency
-                    ? `Enter Amount to donate in ${nativecurrency}`
+                    ? `Enter Amount to donate in ${fundingSymbol}`
                     : "Connect Wallet to proceed"
                 }
                 disabled={!nativecurrency}
@@ -195,7 +269,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
 
                 <span className="text-white">
                   {nativecurrency
-                    ? `${isSubmitting ? "Processing..." : `Send ${nativecurrency}`}`
+                    ? `${isSubmitting ? "Processing..." : `Send ${fundingSymbol}`}`
                     : "Connect Wallet"}
                 </span>
               </button>
@@ -292,7 +366,7 @@ const VaultActions: React.FC<{ withdrawalAddress?: string }> = ({
                 step="any"
                 {...register3("ethAmount", { required: true })}
                 placeholder={
-                  nativecurrency
+                  fundingSymbol
                     ? `Enter Amount of Tokens to Withdraw`
                     : "Connect Wallet to proceed"
                 }

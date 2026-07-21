@@ -1,8 +1,10 @@
+//import vaultabi from "./abi/vaultabi.json";
+import ERC20vaultabi from "./abi/ERC20vaultabi.json";
 import vaultabi from "./abi/vaultabi.json";
 import abi from "./abi/abi.json";
 import { useReadContract } from "wagmi";
 //import { sepolia } from "viem/chains";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { VaultDetailsType } from "./ContractResponseTypes.ts";
 import { formatEther } from "viem";
 import { useBalance } from "wagmi";
@@ -16,15 +18,21 @@ const Details = () => {
   // Placeholder example values for the funding vault
   const { address } = useParams<{ address: `0x${string}` }>();
 
+  const location = useLocation();
+
+  const { isERC20 } = location.state as { isERC20: boolean };
+
+  const vaultAbi = isERC20 ? ERC20vaultabi : vaultabi;
+  console.log("isERC20", isERC20);
   const balanceOfVault = useBalance({
     address: address,
     chainId: citreaTestnet.id,
   });
 
   const response = useReadContract({
-    abi: vaultabi,
+    abi: vaultAbi,
     address: address,
-    functionName: "getVaults",
+    functionName: "getVault",
     chainId: citreaTestnet.id,
     query: {
       enabled: balanceOfVault?.data?.value !== undefined,
@@ -47,9 +55,12 @@ const Details = () => {
 
   const VaultCAT = result?.data as string;
 
+  console.log("vaultDetails", vaultDetails);
+  console.log("proofOfFundingToken", vaultDetails?.proofOfFundingToken);
+
   const _symbol = useReadContract({
     abi: abi,
-    address: vaultDetails?.participationToken,
+    address: vaultDetails?.proofOfFundingToken,
     functionName: "symbol",
     chainId: citreaTestnet.id,
     query: {
@@ -57,7 +68,19 @@ const Details = () => {
     },
   });
   const symbol = _symbol?.data as string;
-  console.log(VaultCAT);
+  const fundingTokenSymbol = useReadContract({
+    abi: abi,
+    address: vaultDetails?.fundingToken,
+    functionName: "symbol",
+    chainId: citreaTestnet.id,
+    query: {
+      enabled: isERC20 && vaultDetails?.fundingToken !== undefined,
+    },
+  });
+
+  const fundingSymbol = fundingTokenSymbol.data as string;
+
+  const displaySymbol = isERC20 ? fundingSymbol : balanceOfVault?.data?.symbol;
   //console.log(balanceOfVault?.data?.value, vaultDetails?.minFundingAmount);
   return (
     <div>
@@ -167,12 +190,12 @@ const Details = () => {
                     <h1 className="text-slate-400">Proof-of-Funding Tokens</h1>
                     <p>
                       {formatEther(
-                        BigInt(vaultDetails.participationTokenAmount) -
+                        BigInt(vaultDetails.proofOfFundingTokenAmount) -
                           BigInt(VaultCAT),
                       )}{" "}
                       {symbol} Vouchers Remaining out of{" "}
                       {formatEther(
-                        BigInt(vaultDetails.participationTokenAmount),
+                        BigInt(vaultDetails.proofOfFundingTokenAmount),
                       )}{" "}
                       {symbol} Vouchers
                     </p>
@@ -186,7 +209,7 @@ const Details = () => {
                       <div
                         className="flex flex-col h-2 content-center overflow-hidden bg-purple-500 text-xs text-white text-center whitespace-nowrap transition duration-500 "
                         style={{
-                          width: `${((Number(vaultDetails.participationTokenAmount) - Number(VaultCAT)) / Number(vaultDetails.participationTokenAmount)) * 100}%`,
+                          width: `${((Number(vaultDetails.proofOfFundingTokenAmount) - Number(VaultCAT)) / Number(vaultDetails.proofOfFundingTokenAmount)) * 100}%`,
                         }}
                       ></div>
                     </div>
@@ -195,9 +218,9 @@ const Details = () => {
                     <h1 className="text-slate-400">Funds Collected</h1>
                     <p>
                       {formatEther(balanceOfVault?.data?.value as bigint)}{" "}
-                      {balanceOfVault?.data?.symbol} Funds raised of{" "}
+                      {displaySymbol} Funds raised of{" "}
                       {formatEther(BigInt(vaultDetails.minFundingAmount))}{" "}
-                      {balanceOfVault?.data?.symbol}
+                      {displaySymbol}
                     </p>
                     <div
                       className=" flex w-full h-2  rounded-full overflow-hidden bg-slate-950"
@@ -219,7 +242,7 @@ const Details = () => {
                       <h3 className="text-slate-400">Time Left</h3>
 
                       <Countdown
-                        targetTimestamp={Number(vaultDetails.timeStamp) * 1000}
+                        targetTimestamp={Number(vaultDetails.timestamp) * 1000}
                       />
                     </div>
                   </div>
@@ -246,14 +269,16 @@ const Details = () => {
                       Wallet Address:
                     </p>
                     <div className="bg-slate-950 text-xs font-mono p-2 rounded break-all">
-                      {vaultDetails.withdrawlAddress}
+                      {vaultDetails.withdrawalAddress}
                     </div>
                   </div>
                 </div>
                 <div>
                   {balanceOfVault.data && symbol && vaultDetails && (
                     <VaultActions
-                      withdrawalAddress={vaultDetails?.withdrawlAddress}
+                      withdrawalAddress={vaultDetails.withdrawalAddress}
+                      fundingToken={vaultDetails.fundingToken}
+                      fundingSymbol={displaySymbol}
                     />
                   )}
                 </div>
